@@ -110,16 +110,20 @@ def complete_subject(bgr: np.ndarray, alpha: np.ndarray, use_container: bool = T
 
     if use_container:
         try:
-            from app.container import detect_container, _ell_mask
-            ell, score = detect_container(img)
-            if ell is not None:
-                em = _ell_mask(img.shape, ell) > 0
-                inside = ((seed > 0) & em).sum() / max(1, (seed > 0).sum())
-                area = em.mean()
-                sa = (seed > 0).mean()
-                if inside > 0.8 and sa > 0.05 and area < 0.9 and 1.15 * sa < area < 2.5 * sa:
+            from app.container import detect_containers, _ell_mask
+            sa = (seed > 0).mean()
+            if sa > 0.05:
+                valid = []
+                for ell, score in detect_containers(img)[:30]:
+                    em = _ell_mask(img.shape, ell) > 0
+                    inside = ((seed > 0) & em).sum() / max(1, (seed > 0).sum())
+                    area = em.mean()
+                    if inside > 0.85 and area < 0.9 and 1.1 * sa < area < 2.5 * sa and score > 0.3:
+                        valid.append((area, score, em))
+                if valid:  # outermost plausible rim wins
+                    area, score, em = max(valid, key=lambda v: v[0])
                     gc[em & (gc != cv2.GC_FGD)] = cv2.GC_PR_FGD
-                    info["container"] = {"score": round(score, 2)}
+                    info["container"] = {"score": round(score, 2), "area": round(float(area), 3)}
         except Exception as e:  # optional cue
             info["container_err"] = str(e)
 

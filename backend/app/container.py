@@ -43,6 +43,7 @@ def detect_container(bgr: np.ndarray):
         for x, y, r in circles[0][:8]:
             cands.append(((float(x), float(y)), (2 * float(r), 2 * float(r)), 0.0))
     best, bscore = None, 0.0
+    found = []
     for e in cands:
         (cx, cy), (MA, ma), _ = e
         if not (np.isfinite([cx, cy, MA, ma]).all()) or min(MA, ma) < 0.35 * md or max(MA, ma) > 2.2 * max(H, W):
@@ -54,12 +55,26 @@ def detect_container(bgr: np.ndarray):
         sup, frac_in = _support(edges_d, e, W, H)
         area = np.pi * MA * ma / 4 / (H * W)
         score = sup * area ** 0.7
+        if sup > 0.4:
+            found.append((score, e))
         if sup > 0.4 and score > bscore:
             best, bscore = e, score
+    detect_container.candidates = [(((cx / s, cy / s), (MA / s, ma / s), ang), float(sc))
+                                   for sc, ((cx, cy), (MA, ma), ang) in sorted(found, key=lambda x: -x[0])]
     if best is None:
         return None, 0.0
     (cx, cy), (MA, ma), ang = best
     return ((cx / s, cy / s), (MA / s, ma / s), ang), float(bscore)
+
+
+def detect_containers(bgr):
+    """All plausible ellipse candidates (from several smoothing levels), best score first."""
+    out = []
+    for sig in (0, 1.2, 2.5):
+        im = bgr if sig == 0 else cv2.GaussianBlur(bgr, (0, 0), sig)
+        detect_container(im)
+        out += list(getattr(detect_container, "candidates", []))
+    return sorted(out, key=lambda c: -c[1])
 
 
 def _ell_mask(shape, e, k=1.0):

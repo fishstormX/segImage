@@ -74,8 +74,18 @@ def _to_sticker_from_rgba(rgba: np.ndarray, white_border: bool = True, border: i
     return buf.tobytes()
 
 
+def normalize_input(image_bytes: bytes, max_side: int = 1280, quality: int = 90) -> bytes:
+    """Same preprocessing as the offline tests: EXIF-rotate, RGB, long side ≤ max_side, JPEG q90 (in memory)."""
+    from PIL import ImageOps
+    im = ImageOps.exif_transpose(Image.open(BytesIO(image_bytes))).convert("RGB")
+    im.thumbnail((max_side, max_side))
+    b = BytesIO(); im.save(b, "JPEG", quality=quality)
+    return b.getvalue()
+
+
 def rembg_segment(image_bytes: bytes, white_border: bool = True, smooth: int = 3, despeckle: bool = True, complete: bool = True, model: str | None = None) -> dict[str, Any]:
     model = model if model in MODELS else DEFAULT_MODEL
+    image_bytes = normalize_input(image_bytes)
     session = get_session(model)
     # rembg returns PNG bytes with alpha — never write to disk
     out_bytes = remove(image_bytes, session=session)
