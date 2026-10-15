@@ -1,0 +1,77 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1" />
+  <title>抠图实验室 · segImage</title>
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body>
+  <div class="wrap">
+    <header>
+      <h1>抠图实验室</h1>
+      <p class="sub">上传图片 → 选方案 → 点击/自动分割 → 导出贴纸。服务器不保存任何上传内容。</p>
+    </header>
+
+    <section class="panel methods">
+      <label class="m"><input type="radio" name="method" value="rembg" checked /><span>① rembg / U²-Net<small>服务端自动抠图（类 SAM，无 GPU）</small></span></label>
+      <label class="m"><input type="radio" name="method" value="mediapipe" /><span>② MediaPipe<small>浏览器端点选分割（不上传）</small></span></label>
+      <label class="m"><input type="radio" name="method" value="ai" /><span>④ AI 自动框选<small>免费视觉大模型定位 + GrabCut</small></span></label>
+      <label class="m"><input type="radio" name="method" value="multi" /><span>⑤ 多主体<small>AI 列出多个物体，逐个抠成贴纸</small></span></label>
+      <label class="m"><input type="radio" name="method" value="opencv" /><span>③ OpenCV GrabCut<small>服务端：点前景/背景</small></span></label>
+    </section>
+
+    <section class="panel opts">
+      <label><input type="checkbox" id="whiteBorder" checked /> 白边贴纸效果</label>
+      <label><input type="checkbox" id="despeckle" checked /> 去碎块</label>
+      <label title="纯视觉：用边缘背景模型+GrabCut 把只抠出一部分的主体补全"><input type="checkbox" id="complete" checked /> 智能补全主体 (纯视觉)</label>
+      <label>平滑强度 <input type="range" id="smooth" min="0" max="10" value="3" /> <span id="smoothVal">3</span></label>
+      <label class="hint" id="pointHint">自动模式：无需点选，点「开始分割」即可</label>
+      <div class="ptools" id="ptools" hidden>
+        <button type="button" class="btn ghost" data-label="1" id="btnFg">前景 ●</button>
+        <button type="button" class="btn ghost" data-label="0" id="btnBg">背景 ●</button>
+        <button type="button" class="btn ghost" id="btnClearPts">清除点</button>
+      </div>
+    </section>
+
+    <section class="workspace">
+      <div class="col">
+        <div class="toolbar">
+          <label class="btn primary filebtn">选择图片<input type="file" id="file" accept="image/*" hidden /></label>
+          <button type="button" class="btn primary" id="btnRun">开始分割</button>
+          <button type="button" class="btn" id="btnDownload" disabled>下载 PNG</button>
+        </div>
+        <div class="stage" id="stage">
+          <canvas id="canvas"></canvas>
+          <div class="drop" id="drop">拖拽图片到这里，或点击「选择图片」</div>
+        </div>
+        <p class="status" id="status">就绪</p>
+        <div class="aiinfo" id="aiInfo" hidden></div>
+        <button type="button" class="btn" id="btnMpAi" hidden>用 AI 点自动跑 MediaPipe</button>
+      </div>
+      <div class="col">
+        <h3>结果预览</h3>
+        <div class="result checker" id="resultBox">
+          <img id="resultImg" alt="result" hidden />
+          <p class="muted" id="resultEmpty">分割结果会出现在这里</p>
+        </div>
+        <div id="multiBox" hidden>
+          <div class="toolbar"><b id="multiTitle"></b><button type="button" class="btn" id="btnZip">全部下载</button></div>
+          <div class="gallery" id="gallery"></div>
+        </div>
+        <div class="notes" id="notes">
+          <h4>方案说明</h4>
+          <ul>
+            <li><b>rembg</b>：U²-Net-p，适合主体清晰的物品/食品；本机无 GPU，未部署 Meta SAM 权重。</li>
+            <li><b>MediaPipe</b>：Interactive Segmenter，点一下物体即可；模型在浏览器本地跑。</li>
+            <li><b>AI 自动框选</b>：仅用 OpenRouter 免费视觉模型定位主体（框+前景/背景点），服务端 GrabCut 抠图；都失败时回退 rembg。</li>
+            <li><b>OpenCV GrabCut</b>：先点几个前景（绿）和背景（红）再分割；也可只点前景。</li>
+          </ul>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script src="https://cdn.jsdelivr.net/npm/jszip@3.10.1/dist/jszip.min.js"></script>
+  <script type="module" src="app.js"></script>
+</body>
+</html>

@@ -1,0 +1,17 @@
+__pycache__/
+*.pyc
+venv/
+.venv/
+*.onnx
+*.tflite
+*.pt
+*.pth
+models/
+u2net/
+.cache/
+.env
+*.env
+env
+/etc/
+*.log
+.DS_Store
