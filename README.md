@@ -21,7 +21,7 @@
 | silueta | ~0.7 s | ~0.75 GB | 截图类背景易漏抠 |
 | u2net | ~0.7 s | ~1.2 GB | 与 silueta 接近 |
 | isnet-general-use | ~1.8 s | ~1.9 GB | 碗沿保留更多，但截图类物体丢失，未设为默认 |
-| birefnet-general-lite | — | — | 未启用：模型拉取极慢且 CPU 推理预计超 40 s |
+| birefnet-general-lite | — | >2.9 GB（OOM） | 未启用：权重已就位且 md5 校验通过，但在 2.6 GB 和 2.9 GB 内存上限下（关闭 ORT 内存池后仍然）均在第一张图推理时 OOM，3.6 GB 机器无法与服务共存 |
 
 ## 分割模式
 
