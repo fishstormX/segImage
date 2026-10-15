@@ -23,6 +23,12 @@
 
     <section class="panel opts">
       <label><input type="checkbox" id="whiteBorder" checked /> 白边贴纸效果</label>
+      <label>rembg 模型 <select id="rembgModel">
+        <option value="u2netp">U²-Net-p（快）</option>
+        <option value="isnet-general-use">ISNet 通用</option>
+        <option value="u2net">U²-Net 完整</option>
+        <option value="silueta">Silueta</option>
+      </select></label>
       <label><input type="checkbox" id="despeckle" checked /> 去碎块</label>
       <label title="纯视觉：用边缘背景模型+GrabCut 把只抠出一部分的主体补全"><input type="checkbox" id="complete" checked /> 智能补全主体 (纯视觉)</label>
       <label>平滑强度 <input type="range" id="smooth" min="0" max="10" value="3" /> <span id="smoothVal">3</span></label>

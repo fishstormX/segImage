@@ -310,6 +310,7 @@ async function runServer(methodName) {
   fd.append("file", imgFile, imgFile.name || "upload.jpg");
   fd.append("method", methodName === "opencv" ? "opencv" : methodName === "ai" ? "ai" : methodName === "multi" ? "multi" : "rembg");
   fd.append("smooth", $("#smooth").value);
+  fd.append("rembg_model", $("#rembgModel").value);
   fd.append("complete", $("#complete").checked ? "true" : "false");
   fd.append("despeckle", $("#despeckle").checked ? "true" : "false");
   fd.append("white_border", whiteBorder.checked ? "true" : "false");
@@ -419,3 +420,11 @@ $("#btnZip").addEventListener("click", async () => {
     dl(await z.generateAsync({ type: "blob" }), "stickers.zip");
   } else for (const [i, o] of multiObjs.entries()) { dl(b64blob(o.png_b64), `${i + 1}_${o.label}.png`); await new Promise((r) => setTimeout(r, 400)); }
 });
+
+fetch(HEALTH_URL).then((r) => r.json()).then((h) => {
+  const sel = $("#rembgModel");
+  if (h.rembg_models) {
+    sel.innerHTML = Object.entries(h.rembg_models).map(([k, v]) => `<option value="${k}">${v}${k === h.rembg_default ? "（默认）" : ""}</option>`).join("");
+    sel.value = h.rembg_default;
+  }
+}).catch(() => {});

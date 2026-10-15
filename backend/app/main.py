@@ -1,6 +1,7 @@
 """segImage API — uploads processed in memory only; never persisted to disk."""
 from __future__ import annotations
 
+import asyncio
 import json
 import logging
 import threading
@@ -50,7 +51,9 @@ def startup():
 
 @app.get("/api/health")
 def health():
+    from app.rembg_seg import MODELS, DEFAULT_MODEL, _sessions
     return {
+        "rembg_models": MODELS, "rembg_default": DEFAULT_MODEL, "rembg_loaded": list(_sessions),
         "ok": True,
         "rembg_ready": _rembg_ready,
         "rembg_error": _rembg_error,
@@ -74,6 +77,7 @@ async def segment(
     smooth: int = Form(3),
     despeckle: str = Form("true"),
     complete: str = Form("true"),
+    rembg_model: str = Form(""),
 ):
     cp = str(complete).lower() in ("1", "true", "yes", "on")
     ds = str(despeckle).lower() in ("1", "true", "yes", "on")
@@ -101,14 +105,12 @@ async def segment(
             if method in ("rembg", "sam", "sam-like", "u2net"):
                 from app.rembg_seg import rembg_segment
 
-                result = rembg_segment(raw, white_border=wb, smooth=smooth, despeckle=ds, complete=cp)
+                result = await asyncio.to_thread(lambda: rembg_segment(raw, white_border=wb, smooth=smooth, despeckle=ds, complete=cp, model=rembg_model or None))
             elif method in ("multi",):
-                import asyncio
                 from app.multi import segment_multi
-                result = await asyncio.to_thread(segment_multi, raw, wb, smooth, ds, cp)
+                result = await asyncio.to_thread(segment_multi, raw, wb, smooth, ds, cp, rembg_model or None)
                 return JSONResponse(result)
             elif method in ("ai", "ai_box"):
-                import asyncio
                 from app.ai_box import detect
                 det, tried = await asyncio.to_thread(detect, raw)
                 if det:
@@ -127,7 +129,7 @@ async def segment(
                                   tried=tried, fallback=False)
                 else:
                     from app.rembg_seg import rembg_segment
-                    result = rembg_segment(raw, white_border=wb, smooth=smooth, despeckle=ds, complete=cp)
+                    result = await asyncio.to_thread(lambda: rembg_segment(raw, white_border=wb, smooth=smooth, despeckle=ds, complete=cp, model=rembg_model or None))
                     result.update(method="ai_box→fallback rembg", fallback=True, tried=tried,
                                   label=None, model=None, box=None)
             elif method in ("opencv", "grabcut"):

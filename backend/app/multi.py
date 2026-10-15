@@ -63,7 +63,7 @@ def _render(img, masks, labels, boxes_px, wb, smooth, ds, refined=False):
     return res
 
 
-def segment_multi(raw: bytes, wb=True, smooth=3, ds=True, cp=True) -> dict:
+def segment_multi(raw: bytes, wb=True, smooth=3, ds=True, cp=True, model=None) -> dict:
     img = cv2.imdecode(np.frombuffer(raw, np.uint8), cv2.IMREAD_COLOR)
     if img is None: raise ValueError("无法解码图片")
     H, W = img.shape[:2]
@@ -121,7 +121,7 @@ def segment_multi(raw: bytes, wb=True, smooth=3, ds=True, cp=True) -> dict:
     from app.rembg_seg import get_session
     from PIL import Image
     from io import BytesIO
-    rgba = np.array(Image.open(BytesIO(remove(raw, session=get_session()))).convert("RGBA"))
+    rgba = np.array(Image.open(BytesIO(remove(raw, session=get_session(model)))).convert("RGBA"))
     a = rgba[:, :, 3]
     if cp:
         from app.complete import complete_subject

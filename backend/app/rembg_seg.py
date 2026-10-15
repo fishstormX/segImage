@@ -10,15 +10,33 @@ import numpy as np
 from PIL import Image
 from rembg import remove, new_session
 
-_session = None
+import threading
+from collections import OrderedDict
+
+MODELS = {  # name -> label ; only models verified to run on this CPU/RAM
+    "u2netp": "U²-Net-p（快）",
+    "isnet-general-use": "ISNet 通用",
+    "u2net": "U²-Net 完整",
+    "silueta": "Silueta",
+}
+DEFAULT_MODEL = "u2netp"
+MAX_LOADED = 2
+_sessions: "OrderedDict[str, object]" = OrderedDict()
+_lock = threading.Lock()
 
 
-def get_session():
-    global _session
-    if _session is None:
-        # u2netp is small (~4MB) and fits low-RAM VPS; honest SAM-alternative
-        _session = new_session("u2netp")
-    return _session
+def get_session(model: str | None = None):
+    model = model if model in MODELS else DEFAULT_MODEL
+    with _lock:
+        if model in _sessions:
+            _sessions.move_to_end(model)
+            return _sessions[model]
+        while len(_sessions) >= MAX_LOADED:
+            _sessions.popitem(last=False)  # evict LRU to bound RAM
+            import gc; gc.collect()
+        s = new_session(model)
+        _sessions[model] = s
+        return s
 
 
 def _to_sticker_from_rgba(rgba: np.ndarray, white_border: bool = True, border: int = 6) -> bytes:
@@ -56,8 +74,9 @@ def _to_sticker_from_rgba(rgba: np.ndarray, white_border: bool = True, border: i
     return buf.tobytes()
 
 
-def rembg_segment(image_bytes: bytes, white_border: bool = True, smooth: int = 3, despeckle: bool = True, complete: bool = True) -> dict[str, Any]:
-    session = get_session()
+def rembg_segment(image_bytes: bytes, white_border: bool = True, smooth: int = 3, despeckle: bool = True, complete: bool = True, model: str | None = None) -> dict[str, Any]:
+    model = model if model in MODELS else DEFAULT_MODEL
+    session = get_session(model)
     # rembg returns PNG bytes with alpha — never write to disk
     out_bytes = remove(image_bytes, session=session)
     img = Image.open(BytesIO(out_bytes)).convert("RGBA")
@@ -79,7 +98,8 @@ def rembg_segment(image_bytes: bytes, white_border: bool = True, smooth: int = 3
         "mask_png_b64": base64.b64encode(mbuf.tobytes()).decode("ascii") if ok else "",
         "width": rgba.shape[1],
         "height": rgba.shape[0],
-        "method": "rembg_u2netp" + ("+smart_complete" if complete else ""),
+        "method": f"rembg_{model}" + ("+smart_complete" if complete else ""),
         "complete_info": info,
-        "note": "CPU 无 GPU：使用 rembg(U²-Net-p) 自动抠图，非 Meta SAM 权重",
+        "model": model,
+        "note": f"CPU 无 GPU：rembg {MODELS[model]}，非 Meta SAM 权重",
     }

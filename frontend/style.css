@@ -74,3 +74,4 @@ header h1 { margin: 0 0 6px; font-size: 1.6rem; }
 .aiinfo{margin-top:8px;font-size:.9rem;line-height:1.6;background:#121a27;border:1px solid var(--line);border-radius:10px;padding:8px 10px}
 #btnMpAi{margin-top:8px}
 .gallery{display:grid;grid-template-columns:repeat(auto-fill,minmax(130px,1fr));gap:10px}.gal{border:1px solid var(--line);border-radius:10px;padding:6px;text-align:center;font-size:.85rem}.gal img{max-width:100%;max-height:140px;display:block;margin:0 auto 4px}
+select{background:#121a27;color:var(--text);border:1px solid var(--line);border-radius:8px;padding:4px 6px}
