@@ -5,7 +5,7 @@ All notable changes to this project are documented here. The format follows [Kee
 ## [1.2.1] - 2026-10-16
 
 ### Added
-- Per-client-IP rate limiting on the cutout endpoints (`POST /api/v1/segment`, `/api/v1/multi`, legacy `/api/segment`). Default `1/5s,6/60s`; exceeding returns HTTP 429 `RATE_LIMITED` (`"rate limited"`, `retry_after`, `Retry-After` header). Configurable via `SEG_RATE_LIMITS`; client IP taken from `X-Real-IP`/`X-Forwarded-For` only from `SEG_TRUSTED_PROXIES`.
+- Per-client-IP rate limiting on the cutout endpoints (`POST /api/v1/segment`, `/api/v1/multi`, legacy `/api/segment`). Default `1/10s,5/60s`; exceeding returns HTTP 429 `RATE_LIMITED` (`"rate limited"`, `retry_after`, `Retry-After` header). Configurable via `SEG_RATE_LIMITS`; client IP taken from `X-Real-IP`/`X-Forwarded-For` only from `SEG_TRUSTED_PROXIES`.
 - Web UI shows a friendly EN/ZH message on 429; SDKs expose `retry_after` / `retryAfter` and never auto-retry 429; OpenAPI documents 429.
 
 ## [1.2.0] - 2026-10-14

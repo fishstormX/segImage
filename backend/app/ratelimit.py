@@ -1,7 +1,7 @@
 """Per-client-IP sliding-window rate limiting (in memory, thread/async safe).
 
 Configure with ``SEG_RATE_LIMITS`` — comma-separated ``<count>/<window>`` rules, window in
-``s``/``m``/``h`` (default ``1/5s,6/60s``). Empty, ``0`` or ``off`` disables limiting.
+``s``/``m``/``h`` (default ``1/10s,5/60s``). Empty, ``0`` or ``off`` disables limiting.
 ``SEG_TRUSTED_PROXIES`` (default ``127.0.0.1,::1``): only requests from these peers may set the
 client IP through ``X-Real-IP`` / ``X-Forwarded-For``.
 """
@@ -92,4 +92,4 @@ def client_ip(peer: Optional[str], headers) -> str:
     return peer
 
 
-limiter = RateLimiter(parse_rules(os.environ.get("SEG_RATE_LIMITS", "1/5s,6/60s")))
+limiter = RateLimiter(parse_rules(os.environ.get("SEG_RATE_LIMITS", "1/10s,5/60s")))

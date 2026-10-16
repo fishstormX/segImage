@@ -1,7 +1,7 @@
 {
   "name": "segimage",
   "version": "1.2.1",
-  "description": "Thin fetch client for the segImage background-removal / cutout API (browser + Node 18+). The public API is for testing purposes only and is rate limited per IP.",
+  "description": "Thin fetch client for the segImage background-removal / cutout API (browser + Node 18+). The public API is for testing only (commercial use / partnership: stormnetwork@163.com) and is rate limited per IP.",
   "type": "module",
   "main": "segimage.js",
   "types": "segimage.d.ts",

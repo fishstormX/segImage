@@ -39,8 +39,8 @@ app = FastAPI(
     title="segImage API",
     version=__version__,
     description=(
-        "**This API is provided for testing purposes only (此接口仅供测试使用).** Per-IP rate limits apply "
-        "(default 1 call / 5 s and 6 calls / 60 s; HTTP 429 `rate limited` with Retry-After when exceeded). "
+        "**This API is for testing only. For commercial use or partnership inquiries, contact stormnetwork@163.com (海口龙华区妙妙鱼传媒工作室 / Miaomiaoyu Media Studio, Longhua District, Haikou).** 此接口仅供测试使用，如有商业使用或合作意向，请联系 stormnetwork@163.com（海口龙华区妙妙鱼传媒工作室）。 Per-IP rate limits apply "
+        "(default 1 call / 10 s and 5 calls / 60 s; HTTP 429 `rate limited` with Retry-After when exceeded). "
         "Background removal & subject cutout (stickers). Methods: rembg (U²-Net family), OpenCV GrabCut, "
         "AI auto-box (free OpenRouter vision models only, falls back to rembg), multi-subject. "
         f"Uploads are processed in memory and never stored. Max upload {MAX_BYTES // (1024 * 1024)} MB; "
@@ -60,10 +60,12 @@ async def _rate_limit(request: Request, call_next):
         ip = client_ip(request.client.host if request.client else None, request.headers)
         wait = limiter.hit(ip)
         if wait is not None:
-            msg = f"rate limited, retry after {wait}s"
+            msg = f"rate limited, retry after {wait}s. This API is for testing only. For commercial use or partnership inquiries, contact stormnetwork@163.com (海口龙华区妙妙鱼传媒工作室 / Miaomiaoyu Media Studio, Longhua District, Haikou)."
             return JSONResponse(status_code=429, headers={"Retry-After": str(wait)},
                                 content={"ok": False, "error": {"code": "RATE_LIMITED", "message": msg},
-                                         "detail": msg, "retry_after": wait})
+                                         "detail": msg, "retry_after": wait,
+                                         "message": {"en": f"Rate limited, retry after {wait}s. This API is for testing only. For commercial use or partnership inquiries, contact stormnetwork@163.com (海口龙华区妙妙鱼传媒工作室 / Miaomiaoyu Media Studio, Longhua District, Haikou).",
+                                                     "zh": f"请求过于频繁，请 {wait} 秒后再试。此接口仅供测试使用，如有商业使用或合作意向，请联系 stormnetwork@163.com（海口龙华区妙妙鱼传媒工作室）。"}})
     return await call_next(request)
 
 
@@ -232,8 +234,8 @@ ERRORS = {400: {"model": ErrorResponse, "description": "EMPTY_FILE / BAD_JSON / 
           413: {"model": ErrorResponse, "description": "FILE_TOO_LARGE"},
           415: {"model": ErrorResponse, "description": "UNSUPPORTED_IMAGE"},
           422: {"model": ErrorResponse, "description": "VALIDATION_ERROR (e.g. unknown method, smooth out of range)"},
-          429: {"model": ErrorResponse, "description": "RATE_LIMITED — per-IP limit exceeded (default 1/5s and 6/60s); "
-                 "see the Retry-After header / retry_after field",
+          429: {"model": ErrorResponse, "description": "RATE_LIMITED — per-IP limit exceeded (default 1/10s and 5/60s); "
+                 "see the Retry-After header / retry_after field. This API is for testing only. For commercial use or partnership inquiries, contact stormnetwork@163.com (海口龙华区妙妙鱼传媒工作室 / Miaomiaoyu Media Studio, Longhua District, Haikou). 此接口仅供测试使用，如有商业使用或合作意向，请联系 stormnetwork@163.com（海口龙华区妙妙鱼传媒工作室）。",
                  "headers": {"Retry-After": {"description": "seconds to wait", "schema": {"type": "integer"}}}},
           500: {"model": ErrorResponse, "description": "SEGMENTATION_FAILED"}}
 
