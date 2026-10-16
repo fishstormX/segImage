@@ -48,6 +48,7 @@ function method() {
 }
 
 function setStatus(t, ok) {
+  statusEl.removeAttribute("data-i18n");
   statusEl.textContent = t;
   statusEl.style.color = ok === false ? "#ff8e8e" : ok === true ? "#3ecf8e" : "";
 }

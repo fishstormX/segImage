@@ -15,6 +15,7 @@ import mimetypes
 import os
 import urllib.error
 import urllib.request
+import time
 import uuid
 from dataclasses import dataclass, field
 from typing import Any, Dict, List, Literal, Optional, Sequence, Tuple, Union
@@ -78,8 +79,11 @@ class MultiResult:
 
 
 class SegImage:
-    def __init__(self, base_url: str = DEFAULT_BASE_URL, timeout: float = 300.0, user_agent: str = f"segimage-python/{__version__}"):
+    def __init__(self, base_url: str = DEFAULT_BASE_URL, timeout: float = 300.0, retries: int = 2,
+                 user_agent: str = f"segimage-python/{__version__}"):
+        """``retries``: extra attempts on connection-level failures (the API is stateless, so retrying is safe)."""
         self.base_url = base_url.rstrip("/")
+        self.retries = retries
         self.timeout = timeout
         self.user_agent = user_agent
 
@@ -128,16 +132,26 @@ class SegImage:
             body, ctype = _multipart(fields or {}, image)
             headers["Content-Type"] = ctype
         req = urllib.request.Request(self.base_url + path, data=body, headers=headers, method=verb)
-        try:
-            with urllib.request.urlopen(req, timeout=self.timeout) as r:
-                return json.loads(r.read().decode("utf-8"))
-        except urllib.error.HTTPError as e:
-            text = e.read().decode("utf-8", "replace")
+        for attempt in range(self.retries + 1):
             try:
-                err = json.loads(text).get("error") or {}
-            except ValueError:
-                err = {}
-            raise SegImageError(e.code, err.get("code", "HTTP_%d" % e.code), err.get("message", text[:300])) from None
+                with urllib.request.urlopen(req, timeout=self.timeout) as r:
+                    return json.loads(r.read().decode("utf-8"))
+            except urllib.error.HTTPError as e:
+                self._raise(e)
+            except (urllib.error.URLError, ConnectionError) as e:
+                if attempt >= self.retries:
+                    raise SegImageError(0, "CONNECTION_ERROR", str(e)) from None
+                time.sleep(1.5 * (attempt + 1))
+        raise AssertionError("unreachable")
+
+    @staticmethod
+    def _raise(e: "urllib.error.HTTPError") -> None:
+        text = e.read().decode("utf-8", "replace")
+        try:
+            err = json.loads(text).get("error") or {}
+        except ValueError:
+            err = {}
+        raise SegImageError(e.code, err.get("code", "HTTP_%d" % e.code), err.get("message", text[:300])) from None
 
 
 def _b(v: bool) -> str:
