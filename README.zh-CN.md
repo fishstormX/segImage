@@ -69,6 +69,8 @@ curl -s -F file=@photo.jpg http://127.0.0.1:8765/api/v1/segment \
 
 ## API 与 SDK
 
+> ⚠️ **此接口仅供测试使用。公共实例按 IP 限流：每 5 秒 1 次、每分钟 6 次，超出返回 HTTP 429。** 生产使用请自行部署；限流可通过 `SEG_RATE_LIMITS` 配置。
+
 | 路由 | 说明 |
 |---|---|
 | `GET  /api/v1/health` | 版本、已加载模型、限制 |
@@ -167,6 +169,8 @@ img.src = URL.createObjectURL(res.image);
 | `SEGIMAGE_MAX_BYTES` | `12582912` | 上传上限（字节） |
 | `SEGIMAGE_SERVE_UI` | `1` | 同时在 `/` 提供 `frontend/`（由 nginx 提供静态页时设为 `0`） |
 | `SEGIMAGE_STATIC_DIR` | `../frontend` | 网页目录 |
+| `SEG_RATE_LIMITS` | `1/5s,6/60s` | 按客户端 IP 对抠图接口限流：逗号分隔的 `<次数>/<窗口>`（单位 `s`/`m`/`h`），所有规则同时生效；超限返回 HTTP 429 `rate limited` 并带 `Retry-After`。留空 / `0` / `off` 关闭 |
+| `SEG_TRUSTED_PROXIES` | `127.0.0.1,::1` | 只信任这些上游传来的 `X-Real-IP` / `X-Forwarded-For`（nginx 需设置 `X-Real-IP $remote_addr`） |
 | `U2NET_HOME` | `~/.u2net` | rembg 模型缓存 |
 
 参见 [.env.example](.env.example)。不要提交真实 Key；服务器上放在 root 专属的 `EnvironmentFile`（`chmod 600`）。

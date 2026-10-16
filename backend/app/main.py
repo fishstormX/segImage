@@ -24,6 +24,7 @@ from fastapi.responses import JSONResponse
 from pydantic import BaseModel, Field
 
 from app.opencv_grabcut import grabcut_segment
+from app.ratelimit import client_ip, limiter
 from app.version import __version__
 
 logging.basicConfig(level=logging.INFO)
@@ -38,6 +39,8 @@ app = FastAPI(
     title="segImage API",
     version=__version__,
     description=(
+        "**This API is provided for testing purposes only (此接口仅供测试使用).** Per-IP rate limits apply "
+        "(default 1 call / 5 s and 6 calls / 60 s; HTTP 429 `rate limited` with Retry-After when exceeded). "
         "Background removal & subject cutout (stickers). Methods: rembg (U²-Net family), OpenCV GrabCut, "
         "AI auto-box (free OpenRouter vision models only, falls back to rembg), multi-subject. "
         f"Uploads are processed in memory and never stored. Max upload {MAX_BYTES // (1024 * 1024)} MB; "
@@ -47,6 +50,22 @@ app = FastAPI(
     servers=[{"url": BASE_PATH or "/"}],
 )
 app.add_middleware(CORSMiddleware, allow_origins=["*"], allow_methods=["*"], allow_headers=["*"])
+
+LIMITED_PATHS = {"/api/segment", "/api/v1/segment", "/api/v1/multi"}
+
+
+@app.middleware("http")
+async def _rate_limit(request: Request, call_next):
+    if limiter.enabled and request.method == "POST" and request.url.path.rstrip("/") in LIMITED_PATHS:
+        ip = client_ip(request.client.host if request.client else None, request.headers)
+        wait = limiter.hit(ip)
+        if wait is not None:
+            msg = f"rate limited, retry after {wait}s"
+            return JSONResponse(status_code=429, headers={"Retry-After": str(wait)},
+                                content={"ok": False, "error": {"code": "RATE_LIMITED", "message": msg},
+                                         "detail": msg, "retry_after": wait})
+    return await call_next(request)
+
 
 _rembg_ready = False
 _rembg_error: Optional[str] = None
@@ -213,6 +232,9 @@ ERRORS = {400: {"model": ErrorResponse, "description": "EMPTY_FILE / BAD_JSON / 
           413: {"model": ErrorResponse, "description": "FILE_TOO_LARGE"},
           415: {"model": ErrorResponse, "description": "UNSUPPORTED_IMAGE"},
           422: {"model": ErrorResponse, "description": "VALIDATION_ERROR (e.g. unknown method, smooth out of range)"},
+          429: {"model": ErrorResponse, "description": "RATE_LIMITED — per-IP limit exceeded (default 1/5s and 6/60s); "
+                 "see the Retry-After header / retry_after field",
+                 "headers": {"Retry-After": {"description": "seconds to wait", "schema": {"type": "integer"}}}},
           500: {"model": ErrorResponse, "description": "SEGMENTATION_FAILED"}}
 
 
@@ -225,7 +247,8 @@ def _health():
                         "ai": "free OpenRouter vision model box → GrabCut (fallback: rembg)",
                         "multi": "free vision model lists ≤6 subjects → one sticker each (fallback: rembg components)",
                         "mediapipe": "browser-only (web UI), never uploaded"},
-            "limits": {"max_upload_bytes": MAX_BYTES, "max_side_px": MAX_SIDE},
+            "limits": {"max_upload_bytes": MAX_BYTES, "max_side_px": MAX_SIDE,
+                       "rate_limits": [{"calls": n, "per_seconds": w} for n, w in limiter.rules]},
             "persist": False}
 
 

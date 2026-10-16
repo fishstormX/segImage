@@ -5,6 +5,9 @@
     res = client.segment("photo.jpg", method="rembg")
     res.save("sticker.png")
 
+NOTE: This API is provided for testing purposes only. Public instance limits per IP: 1 call / 5 s and 6 calls / 60 s (HTTP 429 when exceeded).
+On 429 a SegImageError(status=429, code="RATE_LIMITED") with ``retry_after`` is raised (never auto-retried).
+
 Python ≥ 3.8, standard library only. MIT licensed.
 """
 from __future__ import annotations
@@ -20,7 +23,7 @@ import uuid
 from dataclasses import dataclass, field
 from typing import Any, Dict, List, Literal, Optional, Sequence, Tuple, Union
 
-__version__ = "1.2.0"
+__version__ = "1.2.1"
 __all__ = ["SegImage", "SegImageError", "SegmentResult", "Subject", "MultiResult"]
 
 DEFAULT_BASE_URL = "https://jev.fishmaple.cn/segImage"
@@ -34,6 +37,7 @@ class SegImageError(Exception):
     def __init__(self, status: int, code: str, message: str):
         super().__init__(f"[{status} {code}] {message}")
         self.status, self.code, self.message = status, code, message
+        self.retry_after: Optional[int] = None  # set on 429 RATE_LIMITED (seconds)
 
 
 @dataclass
@@ -151,7 +155,13 @@ class SegImage:
             err = json.loads(text).get("error") or {}
         except ValueError:
             err = {}
-        raise SegImageError(e.code, err.get("code", "HTTP_%d" % e.code), err.get("message", text[:300])) from None
+        exc = SegImageError(e.code, err.get("code", "HTTP_%d" % e.code), err.get("message", text[:300]))
+        if e.code == 429:  # rate limited: surfaced, never retried automatically
+            try:
+                exc.retry_after = int(e.headers.get("Retry-After") or 0) or None
+            except (TypeError, ValueError):
+                exc.retry_after = None
+        raise exc from None
 
 
 def _b(v: bool) -> str:

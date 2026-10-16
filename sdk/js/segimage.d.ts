@@ -25,7 +25,7 @@ export interface SegmentOptions extends CommonOptions {
   /** [x, y, w, h] normalized 0..1 */
   rect?: [number, number, number, number];
 }
-export declare class SegImageError extends Error { status: number; code: string; detail: string }
+export declare class SegImageError extends Error { status: number; code: string; detail: string; /** seconds from Retry-After when status is 429 (rate limited) */ retryAfter?: number | null }
 export declare class SegImage {
   constructor(baseUrl?: string, opts?: { timeoutMs?: number; fetch?: typeof fetch });
   health(): Promise<Record<string, any>>;

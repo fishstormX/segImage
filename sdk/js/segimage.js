@@ -1,12 +1,14 @@
 /**
  * segimage — thin fetch-based client for the segImage REST API (v1). Works in browsers and Node ≥ 18.
+ * NOTE: This API is provided for testing purposes only. Public instance limits per IP: 1 call / 5 s and 6 calls / 60 s (HTTP 429 when exceeded).
+ *   On 429 a SegImageError with status 429 and `retryAfter` is thrown (no automatic retry).
  * MIT licensed.
  *   import { SegImage } from "./segimage.js";
  *   const client = new SegImage("https://jev.fishmaple.cn/segImage");
  *   const res = await client.segment(fileOrBlob, { method: "rembg" });
  *   img.src = URL.createObjectURL(res.image);   // Blob (image/png)
  */
-export const VERSION = "1.2.0";
+export const VERSION = "1.2.1";
 export const DEFAULT_BASE_URL = "https://jev.fishmaple.cn/segImage";
 
 export class SegImageError extends Error {
@@ -65,7 +67,9 @@ export class SegImage {
       let d; try { d = JSON.parse(text); } catch { d = null; }
       if (!r.ok) {
         const e = (d && d.error) || {};
-        throw new SegImageError(r.status, e.code || `HTTP_${r.status}`, e.message || text.slice(0, 300));
+        const err = new SegImageError(r.status, e.code || `HTTP_${r.status}`, e.message || text.slice(0, 300));
+        if (r.status === 429) err.retryAfter = Number(r.headers.get("Retry-After")) || null; // not retried automatically
+        throw err;
       }
       return d;
     } finally { clearTimeout(timer); }

@@ -331,6 +331,7 @@ async function runServer(methodName) {
   const text = await res.text();
   let data;
   try { data = JSON.parse(text); } catch { throw new Error(text || res.statusText); }
+  if (res.status === 429) throw new Error(t("e_rate", { s: data.retry_after || res.headers.get("Retry-After") || 5 }));
   if (!res.ok) throw new Error((data.error && data.error.message) || data.detail || data.message || text || t("e_req"));
   if (methodName === "multi") { showMulti(data); return; }
   const bin = Uint8Array.from(atob(data.result_png_b64), (c) => c.charCodeAt(0));

@@ -1,6 +1,6 @@
 /* segImage i18n — English default, Chinese toggle. ?lang=en|zh overrides; choice remembered in localStorage. */
 (function () {
-  const VERSION = "1.2.0";
+  const VERSION = "1.2.1";
   const D = {
     en: {
       title: "segImage · Cutout Lab",
@@ -37,7 +37,7 @@
       e_nomask: "MediaPipe returned no mask", st_mpDone: "MediaPipe done (nothing uploaded)",
       e_gc: "GrabCut needs at least one foreground point",
       st_uploading: "Uploading & segmenting ({m})… the image is discarded right after processing",
-      e_req: "Request failed", st_done: "Done: {m}{note}",
+      d_testonly: "⚠️ This API is provided for testing purposes only. Public instance limits per IP: 1 call / 5 s and 6 calls / 60 s (HTTP 429 when exceeded).", e_req: "Request failed", e_rate: "Too many requests (rate limited). Please wait {s}s and try again.", st_done: "Done: {m}{note}",
       ai_fallback: "No free model returned a usable box — fell back to rembg.", tried: "Tried", none: "none",
       ai_found: "Detected: <b>{label}</b> · model: <code>{model}</code>",
       multi_fallback: "All free models failed — fell back to rembg connected components.",
@@ -80,7 +80,7 @@
       e_nomask: "MediaPipe 未返回 mask", st_mpDone: "MediaPipe 分割完成（未上传服务器）",
       e_gc: "GrabCut 请至少点一个前景点",
       st_uploading: "上传并分割中（{m}）… 服务器处理后立即丢弃原始图",
-      e_req: "请求失败", st_done: "完成：{m}{note}",
+      d_testonly: "⚠️ 此接口仅供测试使用。公共实例按 IP 限流：每 5 秒 1 次、每分钟 6 次，超出返回 HTTP 429。", e_req: "请求失败", e_rate: "请求过于频繁（rate limited），请 {s} 秒后再试。", st_done: "完成：{m}{note}",
       ai_fallback: "免费模型都没给出可用结果，已回退 rembg 自动抠图。", tried: "尝试", none: "无",
       ai_found: "识别：<b>{label}</b> · 模型：<code>{model}</code>",
       multi_fallback: "免费模型都失败，已回退 rembg 连通块拆分。",

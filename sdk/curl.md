@@ -1,5 +1,8 @@
 # curl examples
 
+> ⚠️ This API is provided for testing purposes only (此接口仅供测试使用). Per-IP limits: 1 call / 5 s and 6 calls / 60 s; HTTP 429 `rate limited` + `Retry-After` when exceeded.
+
+
 ```bash
 BASE=https://jev.fishmaple.cn/segImage
 

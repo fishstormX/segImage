@@ -62,6 +62,8 @@ Optional: `export OPENROUTER_API_KEY=...` before starting uvicorn to enable the 
 
 ## API & SDK
 
+> ⚠️ **This API is provided for testing purposes only. Public instance limits per IP: 1 call / 5 s and 6 calls / 60 s (HTTP 429 when exceeded).** Self-host for production use; limits are configurable via `SEG_RATE_LIMITS`.
+
 | Route | Description |
 |---|---|
 | `GET  /api/v1/health` | version, loaded models, limits |
@@ -152,6 +154,8 @@ All results below come from the live API (4 vCPU, no GPU; smooth 3, despeckle, w
 | `SEGIMAGE_MAX_BYTES` | `12582912` | upload limit in bytes |
 | `SEGIMAGE_SERVE_UI` | `1` | also serve `frontend/` at `/` (set `0` when nginx serves it) |
 | `SEGIMAGE_STATIC_DIR` | `../frontend` | where the web UI lives |
+| `SEG_RATE_LIMITS` | `1/5s,6/60s` | per-client-IP limits on cutout calls: comma-separated `<count>/<window>` (`s`/`m`/`h`). All rules apply; exceeding returns HTTP 429 `rate limited` with `Retry-After`. Empty / `0` / `off` disables |
+| `SEG_TRUSTED_PROXIES` | `127.0.0.1,::1` | peers allowed to set the client IP via `X-Real-IP` / `X-Forwarded-For` (make nginx send `X-Real-IP $remote_addr`) |
 | `U2NET_HOME` | `~/.u2net` | rembg model cache |
 
 See [.env.example](.env.example). Never commit a real key; on servers keep it in a root-only `EnvironmentFile` (`chmod 600`).
