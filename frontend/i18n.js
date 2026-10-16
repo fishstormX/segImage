@@ -3,7 +3,7 @@
   const VERSION = "1.2.1";
   const D = {
     en: {
-      title: "segImage · Cutout Lab",
+      title: "Free Online Background Remover – Remove Image Background | segImage", metaDesc: "Remove image backgrounds free online: cut out objects, products, food, people, pets and ID photos into transparent PNGs or stickers. Open source (rembg, MediaPipe, GrabCut, AI auto-box); uploads are never stored.",
       h1: "segImage — Cutout Lab",
       sub: "Upload an image → pick a method → click / auto segment → export a transparent sticker. Objects, people, animals, food, products, cards. The server never stores uploads.",
       apiDocs: "API & SDK", github: "GitHub", langBtn: "中文",
@@ -46,7 +46,7 @@
       footer: "MIT licensed · uploads processed in memory, never stored",
     },
     zh: {
-      title: "segImage · 抠图实验室",
+      title: "免费在线抠图 – 一键去除图片背景 | segImage", metaDesc: "免费在线智能抠图工具：物品、商品、美食、人像、宠物、证件照一键去背景，导出透明 PNG 或贴纸。开源（rembg / MediaPipe / GrabCut / AI 框选），图片不落盘不保存。",
       h1: "segImage — 抠图实验室",
       sub: "上传图片 → 选方案 → 点击/自动分割 → 导出透明贴纸。适用于物品、人物、动物、食物、商品、证件卡片等。服务器不保存任何上传内容。",
       apiDocs: "API 与 SDK", github: "GitHub", langBtn: "EN",
@@ -106,6 +106,11 @@
   function apply() {
     document.documentElement.lang = lang === "zh" ? "zh-CN" : "en";
     if (D[lang].title && document.body.dataset.titleKey !== "none") document.title = t(document.body.dataset.titleKey || "title");
+    if (!document.body.dataset.titleKey && D[lang].metaDesc) {
+      const desc = t(document.body.dataset.descKey || "metaDesc");
+      document.querySelectorAll('meta[name="description"],meta[property="og:description"],meta[name="twitter:description"]').forEach((m) => m.setAttribute("content", desc));
+      document.querySelectorAll('meta[property="og:title"],meta[name="twitter:title"]').forEach((m) => m.setAttribute("content", document.title));
+    }
     document.querySelectorAll("[data-i18n]").forEach((el) => { el.textContent = t(el.dataset.i18n); });
     document.querySelectorAll("[data-i18n-html]").forEach((el) => { el.innerHTML = t(el.dataset.i18nHtml); });
     document.querySelectorAll("[data-i18n-title]").forEach((el) => { el.title = t(el.dataset.i18nTitle); });

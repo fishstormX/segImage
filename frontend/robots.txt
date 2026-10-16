@@ -1,0 +1,3 @@
+User-agent: *
+Allow: /segImage/
+Sitemap: https://jev.fishmaple.cn/segImage/sitemap.xml

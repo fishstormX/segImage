@@ -3,8 +3,27 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1" />
-  <title>segImage · Cutout Lab</title>
-  <meta name="description" content="segImage: open-source background removal & sticker cutout — rembg, MediaPipe, OpenCV GrabCut, free AI auto-box. Uploads are never stored." />
+  <title>Free Online Background Remover – Remove Image Background | segImage</title>
+  <meta name="description" content="Remove image backgrounds free online: cut out objects, products, food, people, pets and ID photos into transparent PNGs or stickers. Open source (rembg, MediaPipe, GrabCut, AI auto-box); uploads are never stored." />
+  <meta name="keywords" content="background remover, remove background, free online background removal, transparent PNG, image cutout, ID photo background, product photo, sticker maker, rembg, 抠图, 在线抠图, 去背景, 证件照抠图" />
+  <meta name="robots" content="index,follow" />
+  <link rel="canonical" href="https://jev.fishmaple.cn/segImage/" />
+  <link rel="alternate" hreflang="en" href="https://jev.fishmaple.cn/segImage/?lang=en" />
+  <link rel="alternate" hreflang="zh" href="https://jev.fishmaple.cn/segImage/?lang=zh" />
+  <link rel="alternate" hreflang="x-default" href="https://jev.fishmaple.cn/segImage/" />
+  <meta property="og:type" content="website" />
+  <meta property="og:site_name" content="segImage" />
+  <meta property="og:title" content="Free Online Background Remover – Remove Image Background | segImage" />
+  <meta property="og:description" content="Remove image backgrounds free online: cut out objects, products, food, people, pets and ID photos into transparent PNGs or stickers. Open source (rembg, MediaPipe, GrabCut, AI auto-box); uploads are never stored." />
+  <meta property="og:url" content="https://jev.fishmaple.cn/segImage/" />
+  <meta property="og:image" content="https://jev.fishmaple.cn/segImage/og.jpg" />
+  <meta property="og:image:width" content="1200" /><meta property="og:image:height" content="630" />
+  <meta property="og:locale" content="en_US" /><meta property="og:locale:alternate" content="zh_CN" />
+  <meta name="twitter:card" content="summary_large_image" />
+  <meta name="twitter:title" content="Free Online Background Remover – Remove Image Background | segImage" />
+  <meta name="twitter:description" content="Remove image backgrounds free online: cut out objects, products, food, people, pets and ID photos into transparent PNGs or stickers. Open source (rembg, MediaPipe, GrabCut, AI auto-box); uploads are never stored." />
+  <meta name="twitter:image" content="https://jev.fishmaple.cn/segImage/og.jpg" />
+  <script type="application/ld+json">{"@context":"https://schema.org","@type":"WebApplication","name":"segImage","url":"https://jev.fishmaple.cn/segImage/","applicationCategory":"MultimediaApplication","operatingSystem":"Any (web browser)","description":"Remove image backgrounds free online: cut out objects, products, food, people, pets and ID photos into transparent PNGs or stickers. Open source (rembg, MediaPipe, GrabCut, AI auto-box); uploads are never stored.","inLanguage":["en","zh-CN"],"isAccessibleForFree":true,"offers":{"@type":"Offer","price":"0","priceCurrency":"USD"},"image":"https://jev.fishmaple.cn/segImage/og.jpg","softwareVersion":"1.2.1","license":"https://opensource.org/licenses/MIT","codeRepository":"https://github.com/fishstormX/segImage","featureList":["Background removal","Transparent PNG export","Sticker outline","ID photo cutout","Multi-subject cutout","Uploads never stored"]}</script>
   <link rel="stylesheet" href="style.css" />
   <script src="i18n.js"></script>
 </head>
@@ -20,6 +39,7 @@
         </nav>
       </div>
       <p class="sub" data-i18n="sub"></p>
+      <noscript><h2>Free online background remover</h2><p>Remove image backgrounds free online: cut out objects, products, food, people, pets and ID photos into transparent PNGs or stickers. Open source (rembg, MediaPipe, GrabCut, AI auto-box); uploads are never stored.</p><p>免费在线智能抠图工具：物品、商品、美食、人像、宠物、证件照一键去背景，导出透明 PNG 或贴纸。开源（rembg / MediaPipe / GrabCut / AI 框选），图片不落盘不保存。</p><p>JavaScript is required to use the tool.</p></noscript>
     </header>
 
     <section class="panel methods">
@@ -67,7 +87,7 @@
       <div class="col">
         <h3 data-i18n="preview"></h3>
         <div class="result checker" id="resultBox">
-          <img id="resultImg" alt="result" hidden />
+          <img id="resultImg" alt="Cutout result: subject with background removed (transparent PNG)" hidden />
           <p class="muted" id="resultEmpty" data-i18n="empty"></p>
         </div>
         <div id="multiBox" hidden>
