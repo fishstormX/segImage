@@ -1,4 +1,4 @@
-/* segImage i18n — English default, Chinese toggle. ?lang=en|zh overrides; choice remembered in localStorage. */
+/* segImage i18n — default follows browser language (zh* → Chinese, else English). ?lang=en|zh overrides; choice remembered in localStorage. */
 (function () {
   const VERSION = "1.2.1";
   const D = {
@@ -93,7 +93,11 @@
   let lang = (q && q.toLowerCase().startsWith("zh")) ? "zh" : (q && q.toLowerCase().startsWith("en")) ? "en" : null;
   if (lang) { try { localStorage.setItem("segImage.lang", lang); } catch (e) {} }
   else { try { lang = localStorage.getItem("segImage.lang"); } catch (e) {} }
-  if (lang !== "zh") lang = "en";
+  if (lang !== "zh" && lang !== "en") {
+    // no explicit/saved choice: follow the browser language (zh* → zh, anything else → en)
+    const bl = (navigator.languages && navigator.languages[0]) || navigator.language || "";
+    lang = bl.toLowerCase().startsWith("zh") ? "zh" : "en";
+  }
   function t(k, v) {
     let s = (D[lang] && D[lang][k]) ?? D.en[k] ?? k;
     if (v) s = s.replace(/\{(\w+)\}/g, (_, n) => (v[n] ?? ""));
