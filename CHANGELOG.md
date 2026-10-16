@@ -6,6 +6,9 @@ All notable changes to this project are documented here. The format follows [Kee
 
 ### Added
 - Per-client-IP rate limiting on the cutout endpoints (`POST /api/v1/segment`, `/api/v1/multi`, legacy `/api/segment`). Default `1/10s,5/60s`; exceeding returns HTTP 429 `RATE_LIMITED` (`"rate limited"`, `retry_after`, `Retry-After` header). Configurable via `SEG_RATE_LIMITS`; client IP taken from `X-Real-IP`/`X-Forwarded-For` only from `SEG_TRUSTED_PROXIES`.
+- Testing-only notice with commercial contact (stormnetwork@163.com) on the API docs page, OpenAPI, SDKs, READMEs and in 429 responses (`message.en` / `message.zh`).
+- SEO: per-language title/description, canonical + hreflang, Open Graph/Twitter card, WebApplication JSON-LD, noscript description, `robots.txt` / `sitemap.xml`.
+- Web UI language now follows the browser language (zh* → Chinese, else English); `?lang=` and the saved choice still override.
 - Web UI shows a friendly EN/ZH message on 429; SDKs expose `retry_after` / `retryAfter` and never auto-retry 429; OpenAPI documents 429.
 
 ## [1.2.0] - 2026-10-14
