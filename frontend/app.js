@@ -55,7 +55,8 @@ function updateMethodUI() {
   const m = method();
   const needPts = m === "opencv" || m === "mediapipe";
   ptools.hidden = !needPts;
-  if (m === "ai") pointHint.textContent = "AI 自动找主体并抠图，无需点选";
+  if (m === "multi") pointHint.textContent = "AI 自动列出多个物体并逐个抠图，无需点选";
+  else if (m === "ai") pointHint.textContent = "AI 自动找主体并抠图，无需点选";
   else if (m === "rembg") pointHint.textContent = "自动模式：无需点选，点「开始分割」即可";
   else if (m === "mediapipe") pointHint.textContent = "在图上点击物体（可多点），再点「开始分割」；完全在浏览器运行";
   else pointHint.textContent = "绿点=前景，红点=背景；至少点 1 个前景，再点「开始分割」";
@@ -230,7 +231,7 @@ async function runMediaPipe() {
       const mx = Math.min(mw - 1, Math.floor((x / out.width) * mw));
       const my = Math.min(mh - 1, Math.floor((y / out.height) * mh));
       const v = data[my * mw + mx];
-      bin[y * out.width + x] = v > 0 ? 1 : 0;
+      bin[y * out.width + x] = v === 0 ? 1 : 0; // InteractiveSegmenter: category 0 = selected object
     }
   }
 

@@ -41,6 +41,67 @@
 - **绝不调用付费模型**；全部失败时回退本地 rembg（多主体模式回退为 rembg 连通块拆分，标签「主体N」）
 - API Key 只放在服务器的 root-only 环境文件中，**不会出现在前端**
 
+## 界面截图
+
+| 初始状态（桌面） | rembg 自动抠图 |
+|---|---|
+| ![empty](docs/images/ui_desktop_empty.webp) | ![rembg](docs/images/ui_desktop_rembg.webp) |
+| **AI 自动框选**（虚线框 + 前景绿点/背景红点，显示所用免费模型） | **多主体**（原图标注 + 贴纸画廊 + 全部下载） |
+| ![ai](docs/images/ui_desktop_ai.webp) | ![multi](docs/images/ui_desktop_multi.webp) |
+| **MediaPipe 点选**（浏览器本地推理，不上传） | **设置栏** |
+| ![mediapipe](docs/images/ui_desktop_mediapipe.webp) | ![settings](docs/images/ui_desktop_settings.webp) |
+
+移动端（390px 宽）：
+
+<p>
+<img src="docs/images/ui_mobile_empty.webp" width="200" alt="mobile empty" />
+<img src="docs/images/ui_mobile_rembg.webp" width="200" alt="mobile rembg" />
+<img src="docs/images/ui_mobile_ai.webp" width="200" alt="mobile ai" />
+<img src="docs/images/ui_mobile_multi.webp" width="200" alt="mobile multi" />
+</p>
+
+## 案例对比
+
+以下结果均通过线上 API 实测（4 vCPU、无 GPU；平滑 3、去碎块、白边；输入长边 ≤1280px）。MediaPipe 在无头 Chrome 中模拟一次点击得到。耗时为端到端请求时间，含排队与免费模型调用；AI/多主体的耗时主要取决于免费模型的限流情况。金色边框为该案例的最佳结果。
+
+### 案例 1 · 书封实拍
+
+![case book](docs/images/case_book.webp)
+
+- **最佳：rembg U²-Net-p**，干净地拿到整本书的矩形轮廓，约 8 s。U²-Net / Silueta / AI 自动框选结果接近。
+- ISNet 把“书”理解成封面上的文字，只留下几个字，失败；MediaPipe 单点在白色封面上无法越过黑色腰封，下半部分破碎。
+- GrabCut 矩形初始化把书的上半部分抠得很好，但丢了腰封；多主体模式里免费模型全部失败，回退到 rembg 连通块，结果等同于 rembg。
+- 结论：主体是“平面物体 + 大块文字”时，显著性模型（U²-Net 系列）比通用分割更可靠。
+
+### 案例 2 · 逆光小猫
+
+![case kitten](docs/images/case_kitten.webp)
+
+- **最佳：U²-Net（完整）+ 智能补全**，毛发边缘和前爪最完整。ISNet、Silueta、MediaPipe 单点也都可用，MediaPipe 只需 4 s 且不上传图片，但输出分辨率受页面画布限制。
+- 失败模式：U²-Net-p + 智能补全在左侧误补了一条地毯；GrabCut 用固定矩形初始化时把明亮的窗户也当成前景。AI 自动框选识别为“猫咪”，框准确，GrabCut 细节略逊于显著性模型。
+- 结论：主体清晰的单物体，优先 rembg（U²-Net / ISNet）；需要隐私或离线时用 MediaPipe。
+
+### 案例 3 · 全息汉服人像（复杂发光背景）
+
+![case hanfu](docs/images/case_hanfu.webp)
+
+- **最佳：U²-Net（完整）+ 智能补全**，人物与大部分半透明纱袖保留得最干净；Silueta 接近。
+- 这是最难的一类：半透明全息面料与发光背景颜色相近。U²-Net-p + 智能补全把大片背景当成主体“补全”进来（智能补全的已知失败模式：背景与主体颜色相近时）；ISNet 和 GrabCut 带入了较多光线背景；MediaPipe 单点只拿到身体，纱袖丢失。
+- 多主体被免费模型拆成“女/裙”两个重叠物体，按重叠消解后成了碎片，不适合此类图。
+- 结论：复杂背景下用更大的 U²-Net / Silueta，并考虑关闭智能补全对比一下。
+
+## 方案选择指南
+
+| 场景 | 推荐方案 | 备注 |
+|---|---|---|
+| 主体清晰的单个物品 / 食物 / 宠物 | rembg U²-Net-p（默认）+ 智能补全 | 最快（模型推理约 0.3 s）；不满意时换 U²-Net 或 ISNet |
+| 盘子 / 碗里的整份菜 | rembg U²-Net-p + 智能补全 | 智能补全会利用碗沿椭圆把容器一起抠出 |
+| 复杂或发光背景、半透明材质 | rembg U²-Net（完整）或 Silueta | 若出现背景被“补全”，关闭智能补全 |
+| 平面物体（书、卡片、包装） | rembg U²-Net-p / U²-Net | 避免 ISNet（容易只留下文字） |
+| 想精确指定抠哪一个 | MediaPipe 点选 或 OpenCV GrabCut 点前景/背景 | MediaPipe 完全在浏览器运行 |
+| 不知道主体在哪 / 截图类 | AI 自动框选 | 只用免费模型，常被限流；失败自动回退 rembg |
+| 一张图里有多个物品要分别做贴纸 | 多主体 | 物体分开摆放时效果好；重叠物体容易被拆碎 |
+
 ## 目录
 
 ```
