@@ -13,6 +13,7 @@ const API_URL = (() => {
 })();
 const HEALTH_URL = API_URL.replace(/\/segment$/, "/health");
 
+const t = (k, v) => (window.I18N ? window.I18N.t(k, v) : k);
 const $ = (s) => document.querySelector(s);
 const fileInput = $("#file");
 const canvas = $("#canvas");
@@ -55,11 +56,11 @@ function updateMethodUI() {
   const m = method();
   const needPts = m === "opencv" || m === "mediapipe";
   ptools.hidden = !needPts;
-  if (m === "multi") pointHint.textContent = "AI 自动列出多个物体并逐个抠图，无需点选";
-  else if (m === "ai") pointHint.textContent = "AI 自动找主体并抠图，无需点选";
-  else if (m === "rembg") pointHint.textContent = "自动模式：无需点选，点「开始分割」即可";
-  else if (m === "mediapipe") pointHint.textContent = "在图上点击物体（可多点），再点「开始分割」；完全在浏览器运行";
-  else pointHint.textContent = "绿点=前景，红点=背景；至少点 1 个前景，再点「开始分割」";
+  if (m === "multi") pointHint.textContent = t("hint_multi");
+  else if (m === "ai") pointHint.textContent = t("hint_ai");
+  else if (m === "rembg") pointHint.textContent = t("hint_rembg");
+  else if (m === "mediapipe") pointHint.textContent = t("hint_mp");
+  else pointHint.textContent = t("hint_cv");
 }
 
 document.querySelectorAll('input[name="method"]').forEach((el) => el.addEventListener("change", updateMethodUI));
@@ -117,7 +118,7 @@ function redraw() {
 
 async function loadFile(file) {
   if (!file || !file.type.startsWith("image/")) {
-    setStatus("请选择图片文件", false);
+    setStatus(t("st_pickFile"), false);
     return;
   }
   imgFile = file;
@@ -133,7 +134,7 @@ async function loadFile(file) {
     imgBitmap = await createImageBitmap(await (await fetch(url)).blob());
     stage.classList.add("has-img");
     redraw();
-    setStatus(`已加载 ${file.name}（${Math.round(file.size / 1024)} KB）`, true);
+    setStatus(t("st_loaded", { name: file.name, kb: Math.round(file.size / 1024) }), true);
   } finally {
     URL.revokeObjectURL(url);
   }
@@ -163,7 +164,7 @@ async function ensureMediaPipe() {
   if (mpSegmenter) return mpSegmenter;
   if (mpLoading) return mpLoading;
   mpLoading = (async () => {
-    setStatus("正在加载 MediaPipe 模型（首次较慢）…");
+    setStatus(t("st_mpLoading"));
     const vision = await import("https://cdn.jsdelivr.net/npm/@mediapipe/tasks-vision@0.10.21/+esm");
     const { InteractiveSegmenter, FilesetResolver } = vision;
     const wasm = await FilesetResolver.forVisionTasks(
@@ -178,7 +179,7 @@ async function ensureMediaPipe() {
       outputCategoryMask: true,
       outputConfidenceMasks: false,
     });
-    setStatus("MediaPipe 就绪", true);
+    setStatus(t("st_mpReady"), true);
     return mpSegmenter;
   })();
   try {
@@ -194,8 +195,8 @@ function canvasToBlob(type = "image/png") {
 }
 
 async function runMediaPipe() {
-  if (!imgBitmap) throw new Error("请先上传图片");
-  if (!points.length) throw new Error("请先在图上点击要分割的物体");
+  if (!imgBitmap) throw new Error(t("e_upload"));
+  if (!points.length) throw new Error(t("e_click"));
   const segmenter = await ensureMediaPipe();
   // draw clean image without points for segmentation
   const off = document.createElement("canvas");
@@ -211,7 +212,7 @@ async function runMediaPipe() {
   });
 
   const mask = result.categoryMask;
-  if (!mask) throw new Error("MediaPipe 未返回 mask");
+  if (!mask) throw new Error(t("e_nomask"));
   const mw = mask.width;
   const mh = mask.height;
   const data = mask.getAsUint8Array(); // 0 bg, 1 fg typically
@@ -289,7 +290,7 @@ async function runMediaPipe() {
 
   const blob = await new Promise((r) => cropped.toBlob(r, "image/png"));
   showResult(blob);
-  setStatus("MediaPipe 分割完成（未上传服务器）", true);
+  setStatus(t("st_mpDone"), true);
 }
 
 function showResult(blob) {
@@ -303,9 +304,9 @@ function showResult(blob) {
 }
 
 async function runServer(methodName) {
-  if (!imgFile) throw new Error("请先上传图片");
+  if (!imgFile) throw new Error(t("e_upload"));
   if (methodName === "opencv" && !points.some((p) => p.label === 1)) {
-    throw new Error("GrabCut 请至少点一个前景点");
+    throw new Error(t("e_gc"));
   }
   const fd = new FormData();
   fd.append("file", imgFile, imgFile.name || "upload.jpg");
@@ -324,28 +325,28 @@ async function runServer(methodName) {
     }));
     fd.append("points_json", JSON.stringify(pts));
   }
-  setStatus(`上传并分割中（${methodName}）… 服务器处理后立即丢弃原始图`);
+  setStatus(t("st_uploading", { m: methodName }));
   const res = await fetch(API_URL, { method: "POST", body: fd });
   const text = await res.text();
   let data;
   try { data = JSON.parse(text); } catch { throw new Error(text || res.statusText); }
-  if (!res.ok) throw new Error(data.detail || data.message || text || "请求失败");
+  if (!res.ok) throw new Error((data.error && data.error.message) || data.detail || data.message || text || t("e_req"));
   if (methodName === "multi") { showMulti(data); return; }
   const bin = Uint8Array.from(atob(data.result_png_b64), (c) => c.charCodeAt(0));
   const blob = new Blob([bin], { type: "image/png" });
   showResult(blob);
   if (methodName === "ai") showAi(data);
   const note = data.note ? ` · ${data.note}` : "";
-  setStatus(`完成：${data.method}${note}`, true);
+  setStatus(t("st_done", { m: data.method, note }), true);
 }
 
 function esc(s) { return String(s ?? "").replace(/[&<>"]/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c])); }
 function showAi(data) {
   aiInfo.hidden = false;
-  const tried = (data.tried || []).map((t) => `${esc(t.model)}${t.ok ? " ✓" : " ✗"}`).join("，");
+  const tried = (data.tried || []).map((t) => `${esc(t.model)}${t.ok ? " ✓" : " ✗"}`).join(", ");
   if (data.fallback) {
     aiBox = null;
-    aiInfo.innerHTML = `免费模型都没给出可用结果，已回退 rembg 自动抠图。<br><small>尝试：${tried || "无"}</small>`;
+    aiInfo.innerHTML = `${t("ai_fallback")}<br><small>${t("tried")}: ${tried || t("none")}</small>`;
     btnMpAi.hidden = true;
   } else {
     aiBox = data.box;
@@ -353,7 +354,7 @@ function showAi(data) {
       ...(data.fg_points || []).map(([x, y]) => ({ x: x * canvas.width, y: y * canvas.height, label: 1 })),
       ...(data.bg_points || []).map(([x, y]) => ({ x: x * canvas.width, y: y * canvas.height, label: 0 })),
     ];
-    aiInfo.innerHTML = `识别：<b>${esc(data.label)}</b> · 模型：<code>${esc(data.model)}</code><br><small>尝试：${tried}</small>`;
+    aiInfo.innerHTML = `${t("ai_found", { label: esc(data.label), model: esc(data.model) })}<br><small>${t("tried")}: ${tried}</small>`;
     btnMpAi.hidden = false;
   }
   redraw();
@@ -398,21 +399,21 @@ const b64blob = (b) => new Blob([Uint8Array.from(atob(b), (c) => c.charCodeAt(0)
 function dl(blob, name) { const a = document.createElement("a"); a.href = URL.createObjectURL(blob); a.download = name; a.click(); setTimeout(() => URL.revokeObjectURL(a.href), 2000); }
 function showMulti(data) {
   multiObjs = data.objects || []; aiBox = null; points = [];
-  const tried = (data.tried || []).map((t) => `${esc(t.model)}${t.ok ? " ✓" : " ✗"}`).join("，");
+  const tried = (data.tried || []).map((t) => `${esc(t.model)}${t.ok ? " ✓" : " ✗"}`).join(", ");
   aiInfo.hidden = false;
-  aiInfo.innerHTML = data.fallback ? `免费模型都失败，已回退 rembg 连通块拆分。<br><small>尝试：${tried || "无"}</small>`
-    : `模型：<code>${esc(data.model)}</code> · ${multiObjs.length} 个物体<br><small>尝试：${tried}</small>`;
-  $("#multiBox").hidden = false; $("#multiTitle").textContent = `共 ${multiObjs.length} 个贴纸`;
+  aiInfo.innerHTML = data.fallback ? `${t("multi_fallback")}<br><small>${t("tried")}: ${tried || t("none")}</small>`
+    : `${t("multi_found", { model: esc(data.model), n: multiObjs.length })}<br><small>${t("tried")}: ${tried}</small>`;
+  $("#multiBox").hidden = false; $("#multiTitle").textContent = t("multi_title", { n: multiObjs.length });
   const g = $("#gallery"); g.innerHTML = "";
   multiObjs.forEach((o, i) => {
     const d = document.createElement("div"); d.className = "gal checker";
     const url = URL.createObjectURL(b64blob(o.png_b64));
     d.innerHTML = `<img src="${url}"><div>${esc(o.label)}</div>`;
-    const b = document.createElement("button"); b.className = "btn"; b.textContent = "下载";
+    const b = document.createElement("button"); b.className = "btn"; b.textContent = t("dl");
     b.onclick = () => dl(b64blob(o.png_b64), `${i + 1}_${o.label}.png`); d.appendChild(b); g.appendChild(d);
   });
   if (multiObjs[0]) showResult(b64blob(multiObjs[0].png_b64));
-  setStatus(`多主体完成：${multiObjs.length} 个`, true);
+  setStatus(t("st_multiDone", { n: multiObjs.length }), true);
   redraw();
 }
 $("#btnZip").addEventListener("click", async () => {
@@ -425,7 +426,8 @@ $("#btnZip").addEventListener("click", async () => {
 fetch(HEALTH_URL).then((r) => r.json()).then((h) => {
   const sel = $("#rembgModel");
   if (h.rembg_models) {
-    sel.innerHTML = Object.entries(h.rembg_models).map(([k, v]) => `<option value="${k}">${v}${k === h.rembg_default ? "（默认）" : ""}</option>`).join("");
+    sel.innerHTML = Object.entries(h.rembg_models).map(([k, v]) => `<option value="${k}">${v}</option>`).join("");
     sel.value = h.rembg_default;
   }
 }).catch(() => {});
+document.addEventListener("langchange", () => { try { updateMethodUI(); } catch (e) {} });

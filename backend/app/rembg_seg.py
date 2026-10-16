@@ -14,9 +14,9 @@ import threading
 from collections import OrderedDict
 
 MODELS = {  # name -> label ; only models verified to run on this CPU/RAM
-    "u2netp": "U²-Net-p（快）",
-    "isnet-general-use": "ISNet 通用",
-    "u2net": "U²-Net 完整",
+    "u2netp": "U²-Net-p (fast, default)",
+    "isnet-general-use": "ISNet general-use",
+    "u2net": "U²-Net (full)",
     "silueta": "Silueta",
 }
 DEFAULT_MODEL = "u2netp"
@@ -111,5 +111,5 @@ def rembg_segment(image_bytes: bytes, white_border: bool = True, smooth: int = 3
         "method": f"rembg_{model}" + ("+smart_complete" if complete else ""),
         "complete_info": info,
         "model": model,
-        "note": f"CPU 无 GPU：rembg {MODELS[model]}，非 Meta SAM 权重",
+        "note": f"rembg {model} on CPU (not Meta SAM)",
     }

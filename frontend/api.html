@@ -1,0 +1,112 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>segImage API &amp; SDK</title>
+  <link rel="stylesheet" href="style.css" />
+  <script src="i18n.js"></script>
+</head>
+<body data-title-key="apiTitle">
+<div class="wrap doc">
+  <header>
+    <div class="topbar">
+      <h1><a href="./" style="color:inherit;text-decoration:none">segImage</a> <span data-i18n="apiDocs">API &amp; SDK</span> <span class="badge ver">v1.2</span></h1>
+      <nav class="links">
+        <a href="./" data-i18n="backDemo">← Demo</a>
+        <a id="swagger" href="api/docs" target="_blank">Swagger / OpenAPI</a>
+        <a href="https://github.com/fishstormX/segImage" target="_blank" rel="noopener">GitHub</a>
+        <button type="button" class="btn ghost small" data-lang-toggle data-i18n="langBtn">中文</button>
+      </nav>
+    </div>
+  </header>
+
+  <section class="panel">
+    <p data-lang-only="en">REST API for background removal and sticker cutout. Base URL: <code class="base"></code>. No API key required. Uploads are processed in memory and <b>never stored</b>. Interactive docs: <a href="api/docs">Swagger UI</a> · raw spec: <a href="api/openapi.json">openapi.json</a>.</p>
+    <p data-lang-only="zh">抠图/去背景 REST API。Base URL：<code class="base"></code>。无需 API Key。上传内容只在内存中处理，<b>从不保存</b>。交互文档：<a href="api/docs">Swagger UI</a> · 规范：<a href="api/openapi.json">openapi.json</a>。</p>
+  </section>
+
+  <h2 data-i18n="d_endpoints">Endpoints</h2>
+  <table>
+    <tr><th>Route</th><th data-i18n="d_desc">Description</th></tr>
+    <tr><td><code>GET /api/v1/health</code></td><td data-i18n="d_health">Version, loaded models, limits</td></tr>
+    <tr><td><code>GET /api/v1/models</code></td><td data-i18n="d_models">rembg models + currently available free vision models</td></tr>
+    <tr><td><code>POST /api/v1/segment</code></td><td data-i18n="d_segment">One subject → transparent PNG (method = rembg | grabcut | ai)</td></tr>
+    <tr><td><code>POST /api/v1/multi</code></td><td data-i18n="d_multi">Up to 6 subjects → one PNG each</td></tr>
+    <tr><td><code>POST /api/segment</code>, <code>GET /api/health</code></td><td data-i18n="d_legacy">Legacy aliases (v1.0/1.1 response shape), kept for compatibility</td></tr>
+  </table>
+
+  <h2 data-i18n="d_params">Form fields (multipart/form-data)</h2>
+  <table>
+    <tr><th>Field</th><th>Default</th><th data-i18n="d_desc">Description</th></tr>
+    <tr><td><code>file</code></td><td>—</td><td>JPEG / PNG / WebP, ≤ 12 MB</td></tr>
+    <tr><td><code>method</code></td><td>rembg</td><td>rembg · grabcut · ai</td></tr>
+    <tr><td><code>rembg_model</code></td><td>u2netp</td><td>u2netp · isnet-general-use · u2net · silueta</td></tr>
+    <tr><td><code>complete</code></td><td>true</td><td data-i18n="d_complete">Smart subject completion (pure vision)</td></tr>
+    <tr><td><code>smooth</code></td><td>3</td><td>0–10</td></tr>
+    <tr><td><code>despeckle</code></td><td>true</td><td data-i18n="d_desp">Remove small islands, fill holes</td></tr>
+    <tr><td><code>white_border</code></td><td>true</td><td data-i18n="d_wb">White sticker outline</td></tr>
+    <tr><td><code>points_json</code></td><td>—</td><td>grabcut: <code>[{"x":0.5,"y":0.5,"label":1}]</code> (0..1)</td></tr>
+    <tr><td><code>rect_json</code></td><td>—</td><td>grabcut: <code>[x,y,w,h]</code> (0..1)</td></tr>
+  </table>
+
+  <h2 data-i18n="d_resp">Response &amp; errors</h2>
+<pre><code>{ "ok": true, "version": "1.2.0", "method": "rembg", "engine": "rembg_u2netp+smart_complete",
+  "rembg_model": "u2netp", "width": 960, "height": 1280, "elapsed_ms": 1800,
+  "image_png_b64": "iVBOR…", "mask_png_b64": "iVBOR…", "detection": null }
+
+{ "ok": false, "error": { "code": "FILE_TOO_LARGE", "message": "File larger than 12 MB" } }</code></pre>
+  <table>
+    <tr><th>HTTP</th><th>code</th></tr>
+    <tr><td>400</td><td>EMPTY_FILE · BAD_JSON · UNKNOWN_MODEL</td></tr>
+    <tr><td>413</td><td>FILE_TOO_LARGE</td></tr>
+    <tr><td>415</td><td>UNSUPPORTED_IMAGE</td></tr>
+    <tr><td>422</td><td>VALIDATION_ERROR</td></tr>
+    <tr><td>500</td><td>SEGMENTATION_FAILED</td></tr>
+  </table>
+  <p data-lang-only="en"><b>Limits:</b> 12 MB per upload; images are downscaled to ≤1280 px for rembg; the public demo runs on a small 4-vCPU box with no GPU — please keep it to a few requests per minute, and self-host for batch jobs. The <code>ai</code>/<code>multi</code> methods only use free OpenRouter models and may be slow (up to ~2 min) or rate-limited, falling back to rembg.</p>
+  <p data-lang-only="zh"><b>限制：</b>单次上传 ≤ 12 MB；rembg 会把图片缩到长边 ≤1280px；公共演示跑在一台 4 核、无 GPU 的小服务器上，请控制在每分钟几次，批量任务请自行部署。<code>ai</code>/<code>multi</code> 仅使用 OpenRouter 免费模型，可能较慢（最长约 2 分钟）或被限流，失败时回退 rembg。</p>
+
+  <h2>curl</h2>
+<pre><code>BASE=<span class="base"></span>
+curl -s $BASE/api/v1/health
+curl -s -F file=@photo.jpg -F method=rembg $BASE/api/v1/segment \
+  | python3 -c "import sys,json,base64;d=json.load(sys.stdin);open('sticker.png','wb').write(base64.b64decode(d['image_png_b64']))"
+curl -s -F file=@photo.jpg -F method=grabcut -F 'points_json=[{"x":0.5,"y":0.5,"label":1}]' $BASE/api/v1/segment
+curl -s -F file=@photo.jpg $BASE/api/v1/multi</code></pre>
+
+  <h2>Python SDK</h2>
+  <p data-lang-only="en">Single file, standard library only: <a href="https://github.com/fishstormX/segImage/blob/main/sdk/python/segimage.py">sdk/python/segimage.py</a></p>
+  <p data-lang-only="zh">单文件、仅依赖标准库：<a href="https://github.com/fishstormX/segImage/blob/main/sdk/python/segimage.py">sdk/python/segimage.py</a></p>
+<pre><code>from segimage import SegImage, SegImageError
+
+client = SegImage("<span class="base"></span>")
+res = client.segment("photo.jpg", method="rembg", smooth=3)
+res.save("sticker.png")
+print(res.engine, res.elapsed_ms)
+
+for i, s in enumerate(client.multi("desk.jpg").subjects, 1):
+    s.save(f"{i}_{s.label}.png")</code></pre>
+
+  <h2>JavaScript / TypeScript SDK</h2>
+  <p data-lang-only="en">ESM, uses <code>fetch</code> + <code>FormData</code>; browser and Node ≥ 18; typings included: <a href="https://github.com/fishstormX/segImage/tree/main/sdk/js">sdk/js</a></p>
+  <p data-lang-only="zh">ESM，基于 <code>fetch</code> + <code>FormData</code>；浏览器与 Node ≥ 18 通用，自带类型：<a href="https://github.com/fishstormX/segImage/tree/main/sdk/js">sdk/js</a></p>
+<pre><code>import { SegImage } from "./segimage.js";
+
+const client = new SegImage("<span class="base"></span>");
+const res = await client.segment(fileInput.files[0], { method: "rembg" });
+document.querySelector("img").src = URL.createObjectURL(res.image);</code></pre>
+
+  <footer class="foot">segImage <span class="ver">v1.2</span> · MIT · <a href="https://github.com/fishstormX/segImage">github.com/fishstormX/segImage</a></footer>
+</div>
+<script>
+  (function () {
+    const D = window.I18N.dict;
+    Object.assign(D.en, { apiTitle: "segImage API & SDK", backDemo: "← Demo", d_endpoints: "Endpoints", d_desc: "Description", d_health: "Version, loaded models, limits", d_models: "rembg models + currently available free vision models", d_segment: "One subject → transparent PNG (method = rembg | grabcut | ai)", d_multi: "Up to 6 subjects → one PNG each", d_legacy: "Legacy aliases (v1.0/1.1 response shape), kept for compatibility", d_params: "Form fields (multipart/form-data)", d_complete: "Smart subject completion (pure vision)", d_desp: "Remove small islands, fill holes", d_wb: "White sticker outline", d_resp: "Response & errors" });
+    Object.assign(D.zh, { apiTitle: "segImage API 与 SDK", backDemo: "← 演示", d_endpoints: "接口", d_desc: "说明", d_health: "版本、已加载模型、限制", d_models: "rembg 模型 + 当前可用的免费视觉模型", d_segment: "单主体 → 透明 PNG（method = rembg | grabcut | ai）", d_multi: "最多 6 个主体 → 每个一张 PNG", d_legacy: "旧接口别名（保持 v1.0/1.1 返回格式）", d_params: "表单字段（multipart/form-data）", d_complete: "智能补全主体（纯视觉）", d_desp: "去小碎块、填洞", d_wb: "白边贴纸", d_resp: "返回与错误码" });
+    const base = location.origin + location.pathname.replace(/\/(api\.html|index\.html)?$/, "");
+    document.querySelectorAll(".base").forEach((e) => (e.textContent = base));
+  })();
+</script>
+</body>
+</html>

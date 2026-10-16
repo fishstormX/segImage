@@ -6,9 +6,10 @@ import numpy as np
 from app.ai_box import detect, _clip
 from app.postprocess import refine, sticker
 
-PROMPT = ('你是图像主体定位助手。找出画面中最多6个不同的主要物体（实物、食物、人物、动物；忽略天空、地面、墙面等背景，以及水印、文字、界面按钮）。'
-          '只输出 JSON，不要任何解释：{"objects":[{"label":"中文名","box":[x1,y1,x2,y2],"fg_points":[[x,y],...]}]}。'
-          '坐标为相对图片宽高的比例0到1，原点左上；box紧贴物体外轮廓但不要切到物体；每个物体给2到4个位于物体内部、远离边缘的 fg_points。')
+PROMPT = ('你是图像主体定位助手。找出画面中最多6个不同的主要主体（实物/商品、人物、动物、食物、证件/卡片/文档；'
+          '忽略天空、地面、墙面、桌面等背景，以及水印、文字叠加和界面按钮）。'
+          '只输出 JSON，不要任何解释：{"objects":[{"label":"short English name","box":[x1,y1,x2,y2],"fg_points":[[x,y],...]}]}。'
+          '坐标为相对图片宽高的比例0到1，原点左上；box紧贴主体外轮廓但不要切到主体；每个主体给2到4个位于主体内部、远离边缘的 fg_points。')
 
 
 def iou(a, b):

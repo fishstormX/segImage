@@ -1,81 +1,97 @@
 <!DOCTYPE html>
-<html lang="zh-CN">
+<html lang="en">
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1" />
-  <title>抠图实验室 · segImage</title>
+  <title>segImage · Cutout Lab</title>
+  <meta name="description" content="segImage: open-source background removal & sticker cutout — rembg, MediaPipe, OpenCV GrabCut, free AI auto-box. Uploads are never stored." />
   <link rel="stylesheet" href="style.css" />
+  <script src="i18n.js"></script>
 </head>
 <body>
   <div class="wrap">
     <header>
-      <h1>抠图实验室</h1>
-      <p class="sub">上传图片 → 选方案 → 点击/自动分割 → 导出贴纸。服务器不保存任何上传内容。</p>
+      <div class="topbar">
+        <h1><span data-i18n="h1">segImage — Cutout Lab</span> <span class="badge ver">v1.2</span></h1>
+        <nav class="links">
+          <a href="api.html" data-i18n="apiDocs">API &amp; SDK</a>
+          <a href="https://github.com/fishstormX/segImage" target="_blank" rel="noopener" class="gh"><svg viewBox="0 0 16 16" width="16" height="16" aria-hidden="true"><path fill="currentColor" d="M8 0C3.58 0 0 3.58 0 8c0 3.54 2.29 6.53 5.47 7.59.4.07.55-.17.55-.38 0-.19-.01-.82-.01-1.49-2.01.37-2.53-.49-2.69-.94-.09-.23-.48-.94-.82-1.13-.28-.15-.68-.52-.01-.53.63-.01 1.08.58 1.23.82.72 1.21 1.87.87 2.33.66.07-.52.28-.87.51-1.07-1.78-.2-3.64-.89-3.64-3.95 0-.87.31-1.59.82-2.15-.08-.2-.36-1.02.08-2.12 0 0 .67-.21 2.2.82.64-.18 1.32-.27 2-.27.68 0 1.36.09 2 .27 1.53-1.04 2.2-.82 2.2-.82.44 1.1.16 1.92.08 2.12.51.56.82 1.27.82 2.15 0 3.07-1.87 3.75-3.65 3.95.29.25.54.73.54 1.48 0 1.07-.01 1.93-.01 2.2 0 .21.15.46.55.38A8.013 8.013 0 0016 8c0-4.42-3.58-8-8-8z"/></svg> <span data-i18n="github">GitHub</span></a>
+          <button type="button" class="btn ghost small" data-lang-toggle data-i18n="langBtn">中文</button>
+        </nav>
+      </div>
+      <p class="sub" data-i18n="sub"></p>
     </header>
 
     <section class="panel methods">
-      <label class="m"><input type="radio" name="method" value="rembg" checked /><span>① rembg / U²-Net<small>服务端自动抠图（类 SAM，无 GPU）</small></span></label>
-      <label class="m"><input type="radio" name="method" value="mediapipe" /><span>② MediaPipe<small>浏览器端点选分割（不上传）</small></span></label>
-      <label class="m"><input type="radio" name="method" value="ai" /><span>④ AI 自动框选<small>免费视觉大模型定位 + GrabCut</small></span></label>
-      <label class="m"><input type="radio" name="method" value="multi" /><span>⑤ 多主体<small>AI 列出多个物体，逐个抠成贴纸</small></span></label>
-      <label class="m"><input type="radio" name="method" value="opencv" /><span>③ OpenCV GrabCut<small>服务端：点前景/背景</small></span></label>
+      <label class="m"><input type="radio" name="method" value="rembg" checked /><span><span data-i18n="m_rembg"></span><small data-i18n="m_rembg_s"></small></span></label>
+      <label class="m"><input type="radio" name="method" value="mediapipe" /><span><span data-i18n="m_mp"></span><small data-i18n="m_mp_s"></small></span></label>
+      <label class="m"><input type="radio" name="method" value="ai" /><span><span data-i18n="m_ai"></span><small data-i18n="m_ai_s"></small></span></label>
+      <label class="m"><input type="radio" name="method" value="multi" /><span><span data-i18n="m_multi"></span><small data-i18n="m_multi_s"></small></span></label>
+      <label class="m"><input type="radio" name="method" value="opencv" /><span><span data-i18n="m_cv"></span><small data-i18n="m_cv_s"></small></span></label>
     </section>
 
     <section class="panel opts">
-      <label><input type="checkbox" id="whiteBorder" checked /> 白边贴纸效果</label>
-      <label>rembg 模型 <select id="rembgModel">
-        <option value="u2netp">U²-Net-p（快）</option>
-        <option value="isnet-general-use">ISNet 通用</option>
-        <option value="u2net">U²-Net 完整</option>
+      <label><input type="checkbox" id="whiteBorder" checked /> <span data-i18n="whiteBorder"></span></label>
+      <label><span data-i18n="rembgModel"></span> <select id="rembgModel">
+        <option value="u2netp">U²-Net-p (fast, default)</option>
+        <option value="isnet-general-use">ISNet general-use</option>
+        <option value="u2net">U²-Net (full)</option>
         <option value="silueta">Silueta</option>
       </select></label>
-      <label><input type="checkbox" id="despeckle" checked /> 去碎块</label>
-      <label title="纯视觉：用边缘背景模型+GrabCut 把只抠出一部分的主体补全"><input type="checkbox" id="complete" checked /> 智能补全主体 (纯视觉)</label>
-      <label>平滑强度 <input type="range" id="smooth" min="0" max="10" value="3" /> <span id="smoothVal">3</span></label>
-      <label class="hint" id="pointHint">自动模式：无需点选，点「开始分割」即可</label>
+      <label><input type="checkbox" id="despeckle" checked /> <span data-i18n="despeckle"></span></label>
+      <label data-i18n-title="completeTip"><input type="checkbox" id="complete" checked /> <span data-i18n="complete"></span></label>
+      <label><span data-i18n="smooth"></span> <input type="range" id="smooth" min="0" max="10" value="3" /> <span id="smoothVal">3</span></label>
+      <label class="hint" id="pointHint"></label>
       <div class="ptools" id="ptools" hidden>
-        <button type="button" class="btn ghost" data-label="1" id="btnFg">前景 ●</button>
-        <button type="button" class="btn ghost" data-label="0" id="btnBg">背景 ●</button>
-        <button type="button" class="btn ghost" id="btnClearPts">清除点</button>
+        <button type="button" class="btn ghost" data-label="1" id="btnFg" data-i18n="fg"></button>
+        <button type="button" class="btn ghost" data-label="0" id="btnBg" data-i18n="bg"></button>
+        <button type="button" class="btn ghost" id="btnClearPts" data-i18n="clearPts"></button>
       </div>
     </section>
 
     <section class="workspace">
       <div class="col">
         <div class="toolbar">
-          <label class="btn primary filebtn">选择图片<input type="file" id="file" accept="image/*" hidden /></label>
-          <button type="button" class="btn primary" id="btnRun">开始分割</button>
-          <button type="button" class="btn" id="btnDownload" disabled>下载 PNG</button>
+          <label class="btn primary filebtn"><span data-i18n="pick"></span><input type="file" id="file" accept="image/*" hidden /></label>
+          <button type="button" class="btn primary" id="btnRun" data-i18n="run"></button>
+          <button type="button" class="btn" id="btnDownload" disabled data-i18n="download"></button>
         </div>
         <div class="stage" id="stage">
           <canvas id="canvas"></canvas>
-          <div class="drop" id="drop">拖拽图片到这里，或点击「选择图片」</div>
+          <div class="drop" id="drop" data-i18n="drop"></div>
         </div>
-        <p class="status" id="status">就绪</p>
+        <p class="status" id="status" data-i18n="ready"></p>
         <div class="aiinfo" id="aiInfo" hidden></div>
-        <button type="button" class="btn" id="btnMpAi" hidden>用 AI 点自动跑 MediaPipe</button>
+        <button type="button" class="btn" id="btnMpAi" hidden data-i18n="mpAi"></button>
       </div>
       <div class="col">
-        <h3>结果预览</h3>
+        <h3 data-i18n="preview"></h3>
         <div class="result checker" id="resultBox">
           <img id="resultImg" alt="result" hidden />
-          <p class="muted" id="resultEmpty">分割结果会出现在这里</p>
+          <p class="muted" id="resultEmpty" data-i18n="empty"></p>
         </div>
         <div id="multiBox" hidden>
-          <div class="toolbar"><b id="multiTitle"></b><button type="button" class="btn" id="btnZip">全部下载</button></div>
+          <div class="toolbar"><b id="multiTitle"></b><button type="button" class="btn" id="btnZip" data-i18n="zipAll"></button></div>
           <div class="gallery" id="gallery"></div>
         </div>
         <div class="notes" id="notes">
-          <h4>方案说明</h4>
+          <h4 data-i18n="notesTitle"></h4>
           <ul>
-            <li><b>rembg</b>：U²-Net-p，适合主体清晰的物品/食品；本机无 GPU，未部署 Meta SAM 权重。</li>
-            <li><b>MediaPipe</b>：Interactive Segmenter，点一下物体即可；模型在浏览器本地跑。</li>
-            <li><b>AI 自动框选</b>：仅用 OpenRouter 免费视觉模型定位主体（框+前景/背景点），服务端 GrabCut 抠图；都失败时回退 rembg。</li>
-            <li><b>OpenCV GrabCut</b>：先点几个前景（绿）和背景（红）再分割；也可只点前景。</li>
+            <li data-i18n-html="n_rembg"></li>
+            <li data-i18n-html="n_mp"></li>
+            <li data-i18n-html="n_ai"></li>
+            <li data-i18n-html="n_cv"></li>
+            <li data-i18n-html="n_tip"></li>
           </ul>
         </div>
       </div>
     </section>
+    <footer class="foot">
+      <span>segImage <span class="ver">v1.2</span></span> ·
+      <a href="https://github.com/fishstormX/segImage" target="_blank" rel="noopener">github.com/fishstormX/segImage</a> ·
+      <a href="api.html" data-i18n="apiDocs">API &amp; SDK</a> ·
+      <span data-i18n="footer"></span>
+    </footer>
   </div>
   <script src="https://cdn.jsdelivr.net/npm/jszip@3.10.1/dist/jszip.min.js"></script>
   <script type="module" src="app.js"></script>

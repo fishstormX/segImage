@@ -7,9 +7,10 @@ from PIL import Image
 
 log = logging.getLogger("segImage.ai")
 OR = "https://openrouter.ai/api/v1"
-PROMPT = ('你是图像主体定位助手。观察这张图片，找出画面中最主要、最适合抠成贴纸的一个物体（优先实物、食物、人物或动物；忽略天空、地面、墙面等背景，以及水印、文字）。'
-          '只输出 JSON，不要任何解释：{"label":"物体中文名","box":[x1,y1,x2,y2],"fg_points":[[x,y],...],"bg_points":[[x,y],...]}。'
-          '规则：坐标为相对图片宽高的比例0到1，原点左上；box紧贴外轮廓宁大勿切；fg_points 3到5个点在物体内部远离边缘；bg_points 2到4个点在物体外背景；多物体时选面积最大最居中的。')
+PROMPT = ('你是图像主体定位助手。观察这张图片，找出画面中最主要、最适合抠出来的一个主体'
+          '（优先级：实物/商品、人物、动物、食物、证件/卡片/文档；忽略天空、地面、墙面、桌面等背景，以及水印、文字叠加和界面元素）。'
+          '只输出 JSON，不要任何解释：{"label":"short English name","box":[x1,y1,x2,y2],"fg_points":[[x,y],...],"bg_points":[[x,y],...]}。'
+          '规则：坐标为相对图片宽高的比例0到1，原点左上；box紧贴外轮廓宁大勿切；fg_points 3到5个点在主体内部远离边缘；bg_points 2到4个点在主体外背景；多个候选时选面积最大、最居中的。')
 PREF = [r"qwen.*vl", r"gemini", r"llama.*vision", r"gemma", r"nemotron.*omni", r"inkling", r""]
 EXCLUDE = re.compile(r"safety|guard", re.I)
 _cache = {"t": 0, "models": []}

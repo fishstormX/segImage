@@ -10,6 +10,8 @@ WorkingDirectory=/opt/segImage
 Environment=HOME=/var/cache/segImage
 Environment=U2NET_HOME=/var/cache/segImage/u2net
 Environment=PYTHONUNBUFFERED=1
+Environment=SEGIMAGE_BASE_PATH=/segImage
+Environment=SEGIMAGE_SERVE_UI=0
 EnvironmentFile=/etc/segImage/env
 ExecStart=/opt/segImage/venv/bin/uvicorn app.main:app --host 127.0.0.1 --port 8765 --workers 1
 Restart=on-failure

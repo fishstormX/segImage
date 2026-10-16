@@ -1,0 +1,11 @@
+{
+  "name": "segimage",
+  "version": "1.2.0",
+  "description": "Thin fetch client for the segImage background-removal / cutout API (browser + Node 18+)",
+  "type": "module",
+  "main": "segimage.js",
+  "types": "segimage.d.ts",
+  "files": ["segimage.js", "segimage.d.ts"],
+  "license": "MIT",
+  "repository": "github:fishstormX/segImage"
+}
