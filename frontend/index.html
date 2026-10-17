@@ -51,16 +51,16 @@
     </section>
 
     <section class="panel opts">
-      <label><input type="checkbox" id="whiteBorder" checked /> <span data-i18n="whiteBorder"></span></label>
-      <label><span data-i18n="rembgModel"></span> <select id="rembgModel">
+      <label data-opt="whiteBorder"><input type="checkbox" id="whiteBorder" checked /> <span data-i18n="whiteBorder"></span></label>
+      <label data-opt="rembgModel"><span data-i18n="rembgModel"></span> <select id="rembgModel">
         <option value="u2netp">U²-Net-p (fast, default)</option>
         <option value="isnet-general-use">ISNet general-use</option>
         <option value="u2net">U²-Net (full)</option>
         <option value="silueta">Silueta</option>
       </select></label>
-      <label><input type="checkbox" id="despeckle" checked /> <span data-i18n="despeckle"></span></label>
-      <label data-i18n-title="completeTip"><input type="checkbox" id="complete" checked /> <span data-i18n="complete"></span></label>
-      <label><span data-i18n="smooth"></span> <input type="range" id="smooth" min="0" max="10" value="3" /> <span id="smoothVal">3</span></label>
+      <label data-opt="despeckle"><input type="checkbox" id="despeckle" checked /> <span data-i18n="despeckle"></span></label>
+      <label data-opt="complete" data-i18n-title="completeTip"><input type="checkbox" id="complete" checked /> <span data-i18n="complete"></span></label>
+      <label data-opt="smooth"><span data-i18n="smooth"></span> <input type="range" id="smooth" min="0" max="10" value="3" /> <span id="smoothVal">3</span></label>
       <label class="hint" id="pointHint"></label>
       <div class="ptools" id="ptools" hidden>
         <button type="button" class="btn ghost" data-label="1" id="btnFg" data-i18n="fg"></button>

@@ -53,10 +53,25 @@ function setStatus(t, ok) {
   statusEl.style.color = ok === false ? "#ff8e8e" : ok === true ? "#3ecf8e" : "";
 }
 
+/** Which option controls apply per method (must match server/cli behaviour). */
+const OPTS_FOR = {
+  // rembg model: rembg only (ai/multi rembg-fallback uses default u2netp if not shown)
+  rembg:      { rembgModel: true,  complete: true,  despeckle: true,  smooth: true,  whiteBorder: true },
+  mediapipe:  { rembgModel: false, complete: false, despeckle: false, smooth: false, whiteBorder: true },
+  opencv:     { rembgModel: false, complete: false, despeckle: true,  smooth: true,  whiteBorder: true },
+  ai:         { rembgModel: false, complete: true,  despeckle: true,  smooth: true,  whiteBorder: true },
+  multi:      { rembgModel: false, complete: true,  despeckle: true,  smooth: true,  whiteBorder: true },
+};
+
 function updateMethodUI() {
   const m = method();
   const needPts = m === "opencv" || m === "mediapipe";
   ptools.hidden = !needPts;
+  const opts = OPTS_FOR[m] || OPTS_FOR.rembg;
+  document.querySelectorAll(".opts [data-opt]").forEach((el) => {
+    const key = el.getAttribute("data-opt");
+    el.hidden = !opts[key];
+  });
   if (m === "multi") pointHint.textContent = t("hint_multi");
   else if (m === "ai") pointHint.textContent = t("hint_ai");
   else if (m === "rembg") pointHint.textContent = t("hint_rembg");

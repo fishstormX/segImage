@@ -78,7 +78,7 @@ segimage photo.jpg -o out.png --mask mask.png           # also write the alpha m
 segimage --help
 ```
 
-`--method`: `rembg` (default) · `grabcut` · `ai` · `multi`. `--model`: `u2netp` (default) · `isnet-general-use` · `u2net` · `silueta`.
+`--method`: `rembg` (default) · `grabcut` · `ai` · `multi`. `--model`: `u2netp` (default) · `isnet-general-use` · `u2net` · `silueta` (**rembg-only**; also used as the rembg fallback for `ai`/`multi`). `--no-complete` is rembg-only (ignored by grabcut). `--smooth` / `--no-despeckle` apply to rembg · grabcut · ai · multi. `--no-border` applies to every PNG sticker.
 
 ### 3. Local API / web UI
 

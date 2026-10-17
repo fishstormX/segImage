@@ -85,7 +85,7 @@ segimage photo.jpg -o out.png --mask mask.png           # 同时写出 alpha 掩
 segimage --help
 ```
 
-`--method`：`rembg`（默认）· `grabcut` · `ai` · `multi`。`--model`：`u2netp`（默认）· `isnet-general-use` · `u2net` · `silueta`。
+`--method`：`rembg`（默认）· `grabcut` · `ai` · `multi`。`--model`：`u2netp`（默认）· `isnet-general-use` · `u2net` · `silueta`（**仅 rembg**；`ai`/`multi` 回退 rembg 时也用）。`--no-complete` 仅 rembg（grabcut 忽略）。`--smooth` / `--no-despeckle` 适用于 rembg · grabcut · ai · multi。`--no-border` 适用于所有输出 PNG 贴纸的方法。
 
 ### 3. 本地 API / 网页
 

@@ -93,3 +93,7 @@ select{background:#121a27;color:var(--text);border:1px solid var(--line);border-
 .doc h2 { margin-top: 26px; }
 .doc a { color: #9cc7ff; }
 [hidden] { display: none !important; }
+
+/* method-specific options: hide non-applicable controls */
+.opts label[data-opt][hidden],
+.opts [data-opt][hidden] { display: none !important; }

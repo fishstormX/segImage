@@ -164,12 +164,29 @@ def build_parser() -> argparse.ArgumentParser:
         dest="rembg_model",
         choices=list(MODELS),
         default=None,
-        help=f"rembg model (default: {DEFAULT_MODEL})",
+        help=f"rembg model — rembg method only (also used as rembg fallback for ai/multi); default {DEFAULT_MODEL}",
     )
-    p.add_argument("--smooth", type=int, default=3, help="edge smoothing 0–10 (default: 3)")
-    p.add_argument("--no-despeckle", action="store_true", help="disable small-island / hole cleanup")
-    p.add_argument("--no-complete", action="store_true", help="disable smart subject completion")
-    p.add_argument("--no-border", action="store_true", help="disable white sticker outline")
+    p.add_argument(
+        "--smooth",
+        type=int,
+        default=3,
+        help="edge smoothing 0–10 (default: 3); rembg / grabcut / ai / multi (not applicable to browser MediaPipe)",
+    )
+    p.add_argument(
+        "--no-despeckle",
+        action="store_true",
+        help="disable small-island / hole cleanup; rembg / grabcut / ai / multi",
+    )
+    p.add_argument(
+        "--no-complete",
+        action="store_true",
+        help="disable smart subject completion — rembg only (also rembg fallback for ai/multi); ignored by grabcut",
+    )
+    p.add_argument(
+        "--no-border",
+        action="store_true",
+        help="disable white sticker outline; applies to all methods that emit a PNG sticker",
+    )
     p.add_argument(
         "--points",
         help='GrabCut seeds JSON, e.g. \'[{"x":0.5,"y":0.5,"label":1}]\' or [[0.5,0.5,1]]',

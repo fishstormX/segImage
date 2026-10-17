@@ -11,6 +11,8 @@ All notable changes to this project are documented here. The format follows [Kee
 
 ### Changed
 - Cutout engine extracted to `app.pipeline.run_segment` so the API and CLI do not duplicate the core path.
+- Web UI only shows options that apply to the selected method: rembg model (rembg only), smart completion (rembg / ai / multi), despeckle & smooth (server methods, not MediaPipe), white border (all PNG paths).
+- CLI `--help` documents which flags are rembg-only vs shared.
 
 ## [1.2.1] - 2026-10-16
 
