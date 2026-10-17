@@ -2,6 +2,17 @@
 
 All notable changes to this project are documented here. The format follows [Keep a Changelog](https://keepachangelog.com/) and the project uses [Semantic Versioning](https://semver.org/).
 
+## [1.3.1] - 2026-10-18
+
+### Added
+- Top-level **CLI · SDK · API** get-started section in README (EN/ZH) — three equal entry paths with one-liner examples.
+- **Use with an Agent** copy-paste prompt (EN/ZH) on README and the live homepage (Copy prompt button).
+- Homepage entry cards and nav links for CLI · SDK · API.
+
+### Changed
+- Meta / Open Graph / Twitter / JSON-LD / noscript descriptions updated to the bilingual recommended pair (objects, people, pets, food, ID photos; uploads never stored).
+- Version badges and SDK `VERSION` strings → 1.3.1.
+
 ## [1.3.0] - 2026-10-18
 
 ### Added

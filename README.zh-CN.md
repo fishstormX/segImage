@@ -4,9 +4,11 @@
 
 # ✂️ segImage
 
-**开源抠图 / 去背景 / 贴纸生成工具：rembg、MediaPipe、OpenCV GrabCut 与免费 AI 自动框选，提供 REST API、SDK，以及一个从不保存上传内容的在线演示。**
+**免费在线抠图：商品、人像、宠物、美食、证件照一键去背景，导出透明 PNG 贴纸。开源工具，上传不落地、不保存。**
 
-[![version](https://img.shields.io/badge/version-1.3.0-3d8bfd)](CHANGELOG.md)
+开源抠图实验室：rembg · MediaPipe · GrabCut · 免费 AI 自动框选 — 提供一等公民级 **CLI**、**SDK** 与 **REST API**，以及从不保存上传的在线演示。
+
+[![version](https://img.shields.io/badge/version-1.3.1-3d8bfd)](CHANGELOG.md)
 [![license](https://img.shields.io/badge/license-MIT-green)](LICENSE)
 [![python](https://img.shields.io/badge/python-3.10%2B-blue?logo=python&logoColor=white)](backend/requirements.txt)
 [![fastapi](https://img.shields.io/badge/FastAPI-0.118-009688?logo=fastapi&logoColor=white)](https://fastapi.tiangolo.com/)
@@ -16,6 +18,68 @@
 
 </div>
 
+## 三种用法 — CLI · SDK · API
+
+同一套抠图引擎，三种入口同等重要，任选其一：
+
+### 🖥️ CLI — 本地抠图，不启服务
+
+```bash
+pip install -e backend/          # 在克隆的仓库里
+segimage photo.jpg -o sticker.png
+segimage ./photos/ -o ./stickers/   # 批量
+```
+
+与网页演示同一套 `app.pipeline`。MediaPipe 仅浏览器可用。→ [快速开始](#快速开始) · `segimage --help`
+
+### 📦 SDK — Python / JS/TS
+
+```python
+from segimage import SegImage
+c = SegImage("https://jev.fishmaple.cn/segImage")
+c.segment(open("photo.jpg", "rb")).image.save("sticker.png")
+```
+
+```js
+import { SegImage } from "./segimage.js";
+const r = await new SegImage("https://jev.fishmaple.cn/segImage").segment(file);
+```
+
+→ [Python](sdk/python/segimage.py) · [JS/TS](sdk/js) · [curl 示例](sdk/curl.md)
+
+### 🔌 API — REST `/api/v1/*`
+
+```bash
+curl -s -F file=@photo.jpg https://jev.fishmaple.cn/segImage/api/v1/segment
+```
+
+→ [站内文档](https://jev.fishmaple.cn/segImage/api.html?lang=zh) · [Swagger UI](https://jev.fishmaple.cn/segImage/api/docs) · [OpenAPI](https://jev.fishmaple.cn/segImage/api/openapi.json)
+
+> 公共 API **仅供测试使用**。商业 / 合作：[stormnetwork@163.com](mailto:stormnetwork@163.com)。限流：每 IP 10 秒 1 次 · 60 秒 5 次。
+
+
+## 给 AI Agent 用
+
+把下面这段复制给 Cursor / ChatGPT / Claude / 任意编程助手：
+
+```
+请用 segImage 帮我抠图去背景
+(仓库 https://github.com/fishstormX/segImage — 演示 https://jev.fishmaple.cn/segImage/?lang=zh)。
+
+优先用本地 CLI（与服务端同一套流水线，文件不离开本机）：
+  pip install -e backend/   # 在克隆的仓库里
+  segimage 输入.jpg -o 输出.png
+  # 参数：--method rembg|grabcut|ai|multi  --model u2netp|u2net|isnet-general-use|silueta
+  #       --no-border --no-complete --smooth 0-10  --mask mask.png
+  # 批量：segimage ./photos/ -o ./stickers/
+
+或调用公共 REST API（仅供测试；按 IP 限流 10 秒 1 次、60 秒 5 次）：
+  curl -s -F file=@输入.jpg https://jev.fishmaple.cn/segImage/api/v1/segment
+Python/JS SDK：sdk/python/segimage.py · sdk/js
+文档：https://jev.fishmaple.cn/segImage/api.html?lang=zh
+隐私：本地 CLI 文件只写到你指定的路径；公共演示只在内存处理，从不保存上传。
+```
+
 ## 功能
 
 - **一个界面 5 种分割方式**：rembg（U²-Net 系列，服务端 CPU）、MediaPipe Interactive Segmenter（浏览器本地，不上传）、OpenCV GrabCut（点前景/背景）、**AI 自动框选**（免费视觉大模型找主体 → GrabCut）、**多主体**（每个物体一张贴纸，可打包 ZIP 下载）。
@@ -23,8 +87,7 @@
 - **贴纸输出**：透明 PNG，自动裁剪，可选白色描边。
 - **掩码后处理**：去碎块、填洞、轮廓平滑、导向滤波羽化（`smooth` 0–10）。
 - **智能补全主体（纯视觉）**：以模型掩码为种子，用边缘背景颜色模型 + 洪泛 + trimap/GrabCut + SLIC 投票把只抠出一部分的主体补全，并有防“吞背景”保护。
-- **命令行 CLI**（`segimage`）：与服务端同一套抠图流水线，适合脚本和批量目录。
-- **带版本的 REST API**（`/api/v1/*`）：OpenAPI / Swagger 文档、统一 JSON 错误格式，附轻量 **Python** 与 **JS/TS** SDK。
+- **CLI · SDK · API**：见上方 [三种用法](#三种用法--cli--sdk--api)；细节见快速开始 / API 与 SDK。
 - **只用免费模型**：AI 模式只调用 id 以 `:free` 结尾的 OpenRouter 模型；未配置 Key 或全部失败时回退本地 rembg。
 - **隐私**：上传只在内存中处理并立即丢弃；无数据库、不落盘。
 - **中英双语界面**：默认英文，`?lang=zh` 切换中文，并记住选择。
@@ -124,7 +187,7 @@ curl -s -F file=@photo.jpg http://127.0.0.1:8765/api/v1/segment \
 
 ```jsonc
 // 成功
-{ "ok": true, "version": "1.3.0", "method": "rembg", "engine": "rembg_u2netp+smart_complete",
+{ "ok": true, "version": "1.3.1", "method": "rembg", "engine": "rembg_u2netp+smart_complete",
   "rembg_model": "u2netp", "width": 960, "height": 1280, "elapsed_ms": 1800,
   "image_png_b64": "iVBOR…", "mask_png_b64": "iVBOR…", "detection": null }
 // 失败

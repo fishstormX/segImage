@@ -4,7 +4,7 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1" />
   <title>Free Online Background Remover – Remove Image Background | segImage</title>
-  <meta name="description" content="Remove image backgrounds free online: cut out objects, products, food, people, pets and ID photos into transparent PNGs or stickers. Open source (rembg, MediaPipe, GrabCut, AI auto-box); uploads are never stored." />
+  <meta name="description" content="Free online background remover for objects, people, pets, food and ID photos. Export transparent PNG stickers. Open source — uploads are never stored." />
   <meta name="keywords" content="background remover, remove background, free online background removal, transparent PNG, image cutout, ID photo background, product photo, sticker maker, rembg, 抠图, 在线抠图, 去背景, 证件照抠图" />
   <meta name="robots" content="index,follow" />
   <link rel="canonical" href="https://jev.fishmaple.cn/segImage/" />
@@ -14,16 +14,16 @@
   <meta property="og:type" content="website" />
   <meta property="og:site_name" content="segImage" />
   <meta property="og:title" content="Free Online Background Remover – Remove Image Background | segImage" />
-  <meta property="og:description" content="Remove image backgrounds free online: cut out objects, products, food, people, pets and ID photos into transparent PNGs or stickers. Open source (rembg, MediaPipe, GrabCut, AI auto-box); uploads are never stored." />
+  <meta property="og:description" content="Free online background remover for objects, people, pets, food and ID photos. Export transparent PNG stickers. Open source — uploads are never stored." />
   <meta property="og:url" content="https://jev.fishmaple.cn/segImage/" />
   <meta property="og:image" content="https://jev.fishmaple.cn/segImage/og.jpg" />
   <meta property="og:image:width" content="1200" /><meta property="og:image:height" content="630" />
   <meta property="og:locale" content="en_US" /><meta property="og:locale:alternate" content="zh_CN" />
   <meta name="twitter:card" content="summary_large_image" />
   <meta name="twitter:title" content="Free Online Background Remover – Remove Image Background | segImage" />
-  <meta name="twitter:description" content="Remove image backgrounds free online: cut out objects, products, food, people, pets and ID photos into transparent PNGs or stickers. Open source (rembg, MediaPipe, GrabCut, AI auto-box); uploads are never stored." />
+  <meta name="twitter:description" content="Free online background remover for objects, people, pets, food and ID photos. Export transparent PNG stickers. Open source — uploads are never stored." />
   <meta name="twitter:image" content="https://jev.fishmaple.cn/segImage/og.jpg" />
-  <script type="application/ld+json">{"@context":"https://schema.org","@type":"WebApplication","name":"segImage","url":"https://jev.fishmaple.cn/segImage/","applicationCategory":"MultimediaApplication","operatingSystem":"Any (web browser)","description":"Remove image backgrounds free online: cut out objects, products, food, people, pets and ID photos into transparent PNGs or stickers. Open source (rembg, MediaPipe, GrabCut, AI auto-box); uploads are never stored.","inLanguage":["en","zh-CN"],"isAccessibleForFree":true,"offers":{"@type":"Offer","price":"0","priceCurrency":"USD"},"image":"https://jev.fishmaple.cn/segImage/og.jpg","softwareVersion":"1.3.0","license":"https://opensource.org/licenses/MIT","codeRepository":"https://github.com/fishstormX/segImage","featureList":["Background removal","Transparent PNG export","Sticker outline","ID photo cutout","Multi-subject cutout","Uploads never stored"]}</script>
+  <script type="application/ld+json">{"@context":"https://schema.org","@type":"WebApplication","name":"segImage","url":"https://jev.fishmaple.cn/segImage/","applicationCategory":"MultimediaApplication","operatingSystem":"Any (web browser)","description":"Free online background remover for objects, people, pets, food and ID photos. Export transparent PNG stickers. Open source — uploads are never stored.","inLanguage":["en","zh-CN"],"isAccessibleForFree":true,"offers":{"@type":"Offer","price":"0","priceCurrency":"USD"},"image":"https://jev.fishmaple.cn/segImage/og.jpg","softwareVersion":"1.3.1","license":"https://opensource.org/licenses/MIT","codeRepository":"https://github.com/fishstormX/segImage","featureList":["Background removal","Transparent PNG export","Sticker outline","ID photo cutout","Multi-subject cutout","Uploads never stored"]}</script>
   <link rel="stylesheet" href="style.css" />
   <script src="i18n.js"></script>
 </head>
@@ -31,16 +31,49 @@
   <div class="wrap">
     <header>
       <div class="topbar">
-        <h1><span data-i18n="h1">segImage — Cutout Lab</span> <span class="badge ver">v1.3</span></h1>
+        <h1><span data-i18n="h1">segImage — Cutout Lab</span> <span class="badge ver">v1.3.1</span></h1>
         <nav class="links">
-          <a href="api.html" data-i18n="apiDocs">API &amp; SDK</a>
+          <a href="#entry-cli" data-i18n="navCli">CLI</a>
+          <a href="api.html#sdk" data-i18n="navSdk">SDK</a>
+          <a href="api.html" data-i18n="navApi">API</a>
           <a href="https://github.com/fishstormX/segImage" target="_blank" rel="noopener" class="gh"><svg viewBox="0 0 16 16" width="16" height="16" aria-hidden="true"><path fill="currentColor" d="M8 0C3.58 0 0 3.58 0 8c0 3.54 2.29 6.53 5.47 7.59.4.07.55-.17.55-.38 0-.19-.01-.82-.01-1.49-2.01.37-2.53-.49-2.69-.94-.09-.23-.48-.94-.82-1.13-.28-.15-.68-.52-.01-.53.63-.01 1.08.58 1.23.82.72 1.21 1.87.87 2.33.66.07-.52.28-.87.51-1.07-1.78-.2-3.64-.89-3.64-3.95 0-.87.31-1.59.82-2.15-.08-.2-.36-1.02.08-2.12 0 0 .67-.21 2.2.82.64-.18 1.32-.27 2-.27.68 0 1.36.09 2 .27 1.53-1.04 2.2-.82 2.2-.82.44 1.1.16 1.92.08 2.12.51.56.82 1.27.82 2.15 0 3.07-1.87 3.75-3.65 3.95.29.25.54.73.54 1.48 0 1.07-.01 1.93-.01 2.2 0 .21.15.46.55.38A8.013 8.013 0 0016 8c0-4.42-3.58-8-8-8z"/></svg> <span data-i18n="github">GitHub</span></a>
           <button type="button" class="btn ghost small" data-lang-toggle data-i18n="langBtn">中文</button>
         </nav>
       </div>
       <p class="sub" data-i18n="sub"></p>
-      <noscript><h2>Free online background remover</h2><p>Remove image backgrounds free online: cut out objects, products, food, people, pets and ID photos into transparent PNGs or stickers. Open source (rembg, MediaPipe, GrabCut, AI auto-box); uploads are never stored.</p><p>免费在线智能抠图工具：物品、商品、美食、人像、宠物、证件照一键去背景，导出透明 PNG 或贴纸。开源（rembg / MediaPipe / GrabCut / AI 框选），图片不落盘不保存。</p><p>JavaScript is required to use the tool.</p></noscript>
+      <noscript><h2>Free online background remover</h2><p>Free online background remover for objects, people, pets, food and ID photos. Export transparent PNG stickers. Open source — uploads are never stored.</p><p>免费在线抠图：商品、人像、宠物、美食、证件照一键去背景，导出透明 PNG 贴纸。开源工具，上传不落地、不保存。</p><p>JavaScript is required to use the tool.</p></noscript>
     </header>
+
+    <section class="entry-grid" aria-label="CLI SDK API">
+      <a class="entry-card" id="entry-cli" href="https://github.com/fishstormX/segImage#get-started--cli--sdk--api" target="_blank" rel="noopener">
+        <div class="entry-icon">🖥️</div>
+        <h3 data-i18n="entryCliTitle">CLI</h3>
+        <p data-i18n="entryCliDesc">Local cutout — same pipeline, no server.</p>
+        <code class="entry-ex" data-i18n="entryCliEx">segimage photo.jpg -o sticker.png</code>
+      </a>
+      <a class="entry-card" id="entry-sdk" href="api.html#sdk">
+        <div class="entry-icon">📦</div>
+        <h3 data-i18n="entrySdkTitle">SDK</h3>
+        <p data-i18n="entrySdkDesc">Python &amp; JS/TS clients for the REST API.</p>
+        <code class="entry-ex" data-i18n="entrySdkEx">from segimage import SegImage</code>
+      </a>
+      <a class="entry-card" id="entry-api" href="api.html">
+        <div class="entry-icon">🔌</div>
+        <h3 data-i18n="entryApiTitle">API</h3>
+        <p data-i18n="entryApiDesc">REST /api/v1 · OpenAPI / Swagger.</p>
+        <code class="entry-ex" data-i18n="entryApiEx">POST /api/v1/segment</code>
+      </a>
+    </section>
+
+    <section class="panel agent-box" id="use-with-agent">
+      <div class="agent-head">
+        <h3 data-i18n="agentTitle">Use with an Agent</h3>
+        <button type="button" class="btn ghost small" id="btnCopyAgent" data-i18n="agentCopy">Copy prompt</button>
+      </div>
+      <p class="agent-hint" data-i18n="agentHint">Paste into Cursor / ChatGPT / Claude — prefers local CLI, falls back to the public API.</p>
+      <pre class="agent-prompt" id="agentPrompt" data-lang-only="en"></pre>
+      <pre class="agent-prompt" id="agentPromptZh" data-lang-only="zh"></pre>
+    </section>
 
     <section class="panel methods">
       <label class="m"><input type="radio" name="method" value="rembg" checked /><span><span data-i18n="m_rembg"></span><small data-i18n="m_rembg_s"></small></span></label>
@@ -107,13 +140,47 @@
       </div>
     </section>
     <footer class="foot">
-      <span>segImage <span class="ver">v1.3</span></span> ·
+      <span>segImage <span class="ver">v1.3.1</span></span> ·
       <a href="https://github.com/fishstormX/segImage" target="_blank" rel="noopener">github.com/fishstormX/segImage</a> ·
-      <a href="api.html" data-i18n="apiDocs">API &amp; SDK</a> ·
+      <a href="#entry-cli" data-i18n="navCli">CLI</a> ·
+      <a href="api.html#sdk" data-i18n="navSdk">SDK</a> ·
+      <a href="api.html" data-i18n="navApi">API</a> ·
       <span data-i18n="footer"></span>
     </footer>
   </div>
   <script src="https://cdn.jsdelivr.net/npm/jszip@3.10.1/dist/jszip.min.js"></script>
   <script type="module" src="app.js"></script>
+
+  <script>
+    (function () {
+      const EN = "You are helping me remove image backgrounds with segImage\n(https://github.com/fishstormX/segImage \u2014 demo https://jev.fishmaple.cn/segImage/).\n\nPrefer the local CLI (same pipeline as the server, uploads never leave the machine):\n  pip install -e backend/   # from a clone of the repo\n  segimage INPUT.jpg -o OUTPUT.png\n  # flags: --method rembg|grabcut|ai|multi  --model u2netp|u2net|isnet-general-use|silueta\n  #        --no-border --no-complete --smooth 0-10  --mask mask.png\n  # batch: segimage ./photos/ -o ./stickers/\n\nOr call the public REST API (testing only; rate-limited 1/10s, 5/60s per IP):\n  curl -s -F file=@INPUT.jpg https://jev.fishmaple.cn/segImage/api/v1/segment\nPython/JS SDKs: sdk/python/segimage.py \u00b7 sdk/js\nDocs: https://jev.fishmaple.cn/segImage/api.html\nPrivacy: local CLI keeps files on disk you choose; the public demo processes in memory and never stores uploads.";
+      const ZH = "\u8bf7\u7528 segImage \u5e2e\u6211\u62a0\u56fe\u53bb\u80cc\u666f\n(\u4ed3\u5e93 https://github.com/fishstormX/segImage \u2014 \u6f14\u793a https://jev.fishmaple.cn/segImage/?lang=zh)\u3002\n\n\u4f18\u5148\u7528\u672c\u5730 CLI\uff08\u4e0e\u670d\u52a1\u7aef\u540c\u4e00\u5957\u6d41\u6c34\u7ebf\uff0c\u6587\u4ef6\u4e0d\u79bb\u5f00\u672c\u673a\uff09\uff1a\n  pip install -e backend/   # \u5728\u514b\u9686\u7684\u4ed3\u5e93\u91cc\n  segimage \u8f93\u5165.jpg -o \u8f93\u51fa.png\n  # \u53c2\u6570\uff1a--method rembg|grabcut|ai|multi  --model u2netp|u2net|isnet-general-use|silueta\n  #       --no-border --no-complete --smooth 0-10  --mask mask.png\n  # \u6279\u91cf\uff1asegimage ./photos/ -o ./stickers/\n\n\u6216\u8c03\u7528\u516c\u5171 REST API\uff08\u4ec5\u4f9b\u6d4b\u8bd5\uff1b\u6309 IP \u9650\u6d41 10 \u79d2 1 \u6b21\u300160 \u79d2 5 \u6b21\uff09\uff1a\n  curl -s -F file=@\u8f93\u5165.jpg https://jev.fishmaple.cn/segImage/api/v1/segment\nPython/JS SDK\uff1asdk/python/segimage.py \u00b7 sdk/js\n\u6587\u6863\uff1ahttps://jev.fishmaple.cn/segImage/api.html?lang=zh\n\u9690\u79c1\uff1a\u672c\u5730 CLI \u6587\u4ef6\u53ea\u5199\u5230\u4f60\u6307\u5b9a\u7684\u8def\u5f84\uff1b\u516c\u5171\u6f14\u793a\u53ea\u5728\u5185\u5b58\u5904\u7406\uff0c\u4ece\u4e0d\u4fdd\u5b58\u4e0a\u4f20\u3002";
+      function fill() {
+        const en = document.getElementById("agentPrompt");
+        const zh = document.getElementById("agentPromptZh");
+        if (en) en.textContent = EN;
+        if (zh) zh.textContent = ZH;
+      }
+      fill();
+      document.addEventListener("DOMContentLoaded", () => {
+        fill();
+        const btn = document.getElementById("btnCopyAgent");
+        if (!btn) return;
+        btn.addEventListener("click", async () => {
+          const lang = (window.I18N && I18N.lang) || "en";
+          const text = lang === "zh" ? ZH : EN;
+          try {
+            await navigator.clipboard.writeText(text);
+            const prev = btn.textContent;
+            btn.textContent = (window.I18N && I18N.t("agentCopied")) || "Copied!";
+            setTimeout(() => { btn.textContent = (window.I18N && I18N.t("agentCopy")) || prev; }, 1500);
+          } catch (e) {
+            const pre = document.getElementById(lang === "zh" ? "agentPromptZh" : "agentPrompt");
+            if (pre) { const r = document.createRange(); r.selectNodeContents(pre); const s = getSelection(); s.removeAllRanges(); s.addRange(r); }
+          }
+        });
+      });
+    })();
+  </script>
 </body>
 </html>

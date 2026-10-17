@@ -1,12 +1,18 @@
 /* segImage i18n — default follows browser language (zh* → Chinese, else English). ?lang=en|zh overrides; choice remembered in localStorage. */
 (function () {
-  const VERSION = "1.3.0";
+  const VERSION = "1.3.1";
   const D = {
     en: {
-      title: "Free Online Background Remover – Remove Image Background | segImage", metaDesc: "Remove image backgrounds free online: cut out objects, products, food, people, pets and ID photos into transparent PNGs or stickers. Open source (rembg, MediaPipe, GrabCut, AI auto-box); uploads are never stored.",
+      title: "Free Online Background Remover – Remove Image Background | segImage", metaDesc: "Free online background remover for objects, people, pets, food and ID photos. Export transparent PNG stickers. Open source — uploads are never stored.",
       h1: "segImage — Cutout Lab",
       sub: "Upload an image → pick a method → click / auto segment → export a transparent sticker. Objects, people, animals, food, products, cards. The server never stores uploads.",
       apiDocs: "API & SDK", github: "GitHub", langBtn: "中文",
+      navCli: "CLI", navSdk: "SDK", navApi: "API",
+      entryCliTitle: "CLI", entryCliDesc: "Local cutout — same pipeline, no server.", entryCliEx: "segimage photo.jpg -o sticker.png",
+      entrySdkTitle: "SDK", entrySdkDesc: "Python & JS/TS clients for the REST API.", entrySdkEx: "from segimage import SegImage",
+      entryApiTitle: "API", entryApiDesc: "REST /api/v1 · OpenAPI / Swagger.", entryApiEx: "POST /api/v1/segment",
+      agentTitle: "Use with an Agent", agentHint: "Paste into Cursor / ChatGPT / Claude — prefers local CLI, falls back to the public API.",
+      agentCopy: "Copy prompt", agentCopied: "Copied!",
       m_rembg: "① rembg / U²-Net", m_rembg_s: "Server auto background removal (CPU)",
       m_mp: "② MediaPipe", m_mp_s: "In-browser click-to-segment (no upload)",
       m_ai: "④ AI auto-box", m_ai_s: "Free vision LLM locates the subject + GrabCut",
@@ -46,10 +52,16 @@
       footer: "MIT licensed · uploads processed in memory, never stored",
     },
     zh: {
-      title: "免费在线抠图 – 一键去除图片背景 | segImage", metaDesc: "免费在线智能抠图工具：物品、商品、美食、人像、宠物、证件照一键去背景，导出透明 PNG 或贴纸。开源（rembg / MediaPipe / GrabCut / AI 框选），图片不落盘不保存。",
+      title: "免费在线抠图 – 一键去除图片背景 | segImage", metaDesc: "免费在线抠图：商品、人像、宠物、美食、证件照一键去背景，导出透明 PNG 贴纸。开源工具，上传不落地、不保存。",
       h1: "segImage — 抠图实验室",
       sub: "上传图片 → 选方案 → 点击/自动分割 → 导出透明贴纸。适用于物品、人物、动物、食物、商品、证件卡片等。服务器不保存任何上传内容。",
       apiDocs: "API 与 SDK", github: "GitHub", langBtn: "EN",
+      navCli: "CLI", navSdk: "SDK", navApi: "API",
+      entryCliTitle: "CLI", entryCliDesc: "本地抠图 — 同一套流水线，无需服务。", entryCliEx: "segimage photo.jpg -o sticker.png",
+      entrySdkTitle: "SDK", entrySdkDesc: "Python / JS/TS 客户端，调用 REST API。", entrySdkEx: "from segimage import SegImage",
+      entryApiTitle: "API", entryApiDesc: "REST /api/v1 · OpenAPI / Swagger。", entryApiEx: "POST /api/v1/segment",
+      agentTitle: "给 AI Agent 用", agentHint: "复制到 Cursor / ChatGPT / Claude — 优先本地 CLI，也可调公共 API。",
+      agentCopy: "复制提示词", agentCopied: "已复制",
       m_rembg: "① rembg / U²-Net", m_rembg_s: "服务端自动抠图（CPU）",
       m_mp: "② MediaPipe", m_mp_s: "浏览器端点选分割（不上传）",
       m_ai: "④ AI 自动框选", m_ai_s: "免费视觉大模型定位 + GrabCut",

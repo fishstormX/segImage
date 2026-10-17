@@ -4,9 +4,11 @@
 
 # ✂️ segImage
 
-**Open-source background removal & sticker cutout — rembg, MediaPipe, OpenCV GrabCut and free AI auto-box, with a REST API, SDKs and a privacy-first web demo that never stores your uploads.**
+**Free online background remover for objects, people, pets, food and ID photos. Export transparent PNG stickers. Open source — uploads are never stored.**
 
-[![version](https://img.shields.io/badge/version-1.3.0-3d8bfd)](CHANGELOG.md)
+Open-source cutout lab: rembg · MediaPipe · GrabCut · free AI auto-box — with a first-class **CLI**, **SDKs** and **REST API**, plus a privacy-first web demo.
+
+[![version](https://img.shields.io/badge/version-1.3.1-3d8bfd)](CHANGELOG.md)
 [![license](https://img.shields.io/badge/license-MIT-green)](LICENSE)
 [![python](https://img.shields.io/badge/python-3.10%2B-blue?logo=python&logoColor=white)](backend/requirements.txt)
 [![fastapi](https://img.shields.io/badge/FastAPI-0.118-009688?logo=fastapi&logoColor=white)](https://fastapi.tiangolo.com/)
@@ -16,6 +18,68 @@
 
 </div>
 
+## Get started — CLI · SDK · API
+
+Three equal ways into the same cutout engine. Pick one:
+
+### 🖥️ CLI — local cutout, no server
+
+```bash
+pip install -e backend/          # from a clone
+segimage photo.jpg -o sticker.png
+segimage ./photos/ -o ./stickers/   # batch
+```
+
+Same `app.pipeline` as the web demo. MediaPipe is browser-only. → [Quickstart](#quickstart) · `segimage --help`
+
+### 📦 SDK — Python & JS/TS
+
+```python
+from segimage import SegImage
+c = SegImage("https://jev.fishmaple.cn/segImage")
+c.segment(open("photo.jpg", "rb")).image.save("sticker.png")
+```
+
+```js
+import { SegImage } from "./segimage.js";
+const r = await new SegImage("https://jev.fishmaple.cn/segImage").segment(file);
+```
+
+→ [Python](sdk/python/segimage.py) · [JS/TS](sdk/js) · [curl recipes](sdk/curl.md)
+
+### 🔌 API — REST `/api/v1/*`
+
+```bash
+curl -s -F file=@photo.jpg https://jev.fishmaple.cn/segImage/api/v1/segment
+```
+
+→ [In-site docs](https://jev.fishmaple.cn/segImage/api.html) · [Swagger UI](https://jev.fishmaple.cn/segImage/api/docs) · [OpenAPI](https://jev.fishmaple.cn/segImage/api/openapi.json)
+
+> Public API is **for testing only**. Commercial / partnership: [stormnetwork@163.com](mailto:stormnetwork@163.com). Limits: 1 / 10 s · 5 / 60 s per IP.
+
+
+## Use with an Agent
+
+Copy-paste this into Cursor / ChatGPT / Claude / any coding agent:
+
+```
+You are helping me remove image backgrounds with segImage
+(https://github.com/fishstormX/segImage — demo https://jev.fishmaple.cn/segImage/).
+
+Prefer the local CLI (same pipeline as the server, uploads never leave the machine):
+  pip install -e backend/   # from a clone of the repo
+  segimage INPUT.jpg -o OUTPUT.png
+  # flags: --method rembg|grabcut|ai|multi  --model u2netp|u2net|isnet-general-use|silueta
+  #        --no-border --no-complete --smooth 0-10  --mask mask.png
+  # batch: segimage ./photos/ -o ./stickers/
+
+Or call the public REST API (testing only; rate-limited 1/10s, 5/60s per IP):
+  curl -s -F file=@INPUT.jpg https://jev.fishmaple.cn/segImage/api/v1/segment
+Python/JS SDKs: sdk/python/segimage.py · sdk/js
+Docs: https://jev.fishmaple.cn/segImage/api.html
+Privacy: local CLI keeps files on disk you choose; the public demo processes in memory and never stores uploads.
+```
+
 ## Features
 
 - **5 segmentation methods in one UI** — rembg (U²-Net family, server CPU), MediaPipe Interactive Segmenter (in-browser, nothing uploaded), OpenCV GrabCut (click foreground/background), **AI auto-box** (a free vision LLM finds the subject → GrabCut) and **multi-subject** (one sticker per object, ZIP download).
@@ -23,8 +87,7 @@
 - **Sticker output** — transparent PNG, auto-cropped, optional white outline.
 - **Mask post-processing** — despeckle, hole filling, contour smoothing, guided-filter feathering (`smooth` 0–10).
 - **Smart subject completion (pure vision)** — grows a partial model mask to the whole subject using a border colour model, flood fill, trimap + GrabCut and SLIC voting, with a guard against swallowing background.
-- **CLI** (`segimage`) — same cutout pipeline as the server, for scripts and batch folders.
-- **Versioned REST API** (`/api/v1/*`) with OpenAPI / Swagger docs, consistent JSON errors, and thin **Python** and **JS/TS** SDKs.
+- **CLI · SDK · API** — see [Get started](#get-started--cli--sdk--api) above; details in Quickstart / API & SDK.
 - **Free models only** — the AI modes use only OpenRouter models whose id ends in `:free`; without a key (or when all fail) they fall back to local rembg.
 - **Privacy** — uploads are processed in memory and discarded; no database, nothing written to disk.
 - **Bilingual UI** — English / 中文 (`?lang=zh`, remembered in your browser).
@@ -117,7 +180,7 @@ Form fields (`multipart/form-data`): `file` (≤ 12 MB), `method`, `rembg_model`
 
 ```jsonc
 // 200
-{ "ok": true, "version": "1.3.0", "method": "rembg", "engine": "rembg_u2netp+smart_complete",
+{ "ok": true, "version": "1.3.1", "method": "rembg", "engine": "rembg_u2netp+smart_complete",
   "rembg_model": "u2netp", "width": 960, "height": 1280, "elapsed_ms": 1800,
   "image_png_b64": "iVBOR…", "mask_png_b64": "iVBOR…", "detection": null }
 // error

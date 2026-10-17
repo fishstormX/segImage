@@ -23,7 +23,7 @@ import uuid
 from dataclasses import dataclass, field
 from typing import Any, Dict, List, Literal, Optional, Sequence, Tuple, Union
 
-__version__ = "1.3.0"
+__version__ = "1.3.1"
 __all__ = ["SegImage", "SegImageError", "SegmentResult", "Subject", "MultiResult"]
 
 DEFAULT_BASE_URL = "https://jev.fishmaple.cn/segImage"

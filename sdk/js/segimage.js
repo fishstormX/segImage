@@ -8,7 +8,7 @@
  *   const res = await client.segment(fileOrBlob, { method: "rembg" });
  *   img.src = URL.createObjectURL(res.image);   // Blob (image/png)
  */
-export const VERSION = "1.2.1";
+export const VERSION = "1.3.1";
 export const DEFAULT_BASE_URL = "https://jev.fishmaple.cn/segImage";
 
 export class SegImageError extends Error {
