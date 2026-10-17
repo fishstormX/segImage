@@ -2,6 +2,16 @@
 
 All notable changes to this project are documented here. The format follows [Keep a Changelog](https://keepachangelog.com/) and the project uses [Semantic Versioning](https://semver.org/).
 
+## [1.3.0] - 2026-10-18
+
+### Added
+- Local **CLI** (`segimage` / `python -m segimage` / `python -m app`) sharing `app.pipeline` with the FastAPI service: rembg, GrabCut, AI auto-box, multi-subject; file / directory batch / stdin→stdout; `--help` documents flags and models.
+- `backend/pyproject.toml` installable package with console script; Quickstart rewritten around install → one-command cutout → flags → local API → SDKs (EN + ZH).
+- In-site API docs page: CLI quickstart section (EN/ZH).
+
+### Changed
+- Cutout engine extracted to `app.pipeline.run_segment` so the API and CLI do not duplicate the core path.
+
 ## [1.2.1] - 2026-10-16
 
 ### Added

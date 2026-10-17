@@ -1,6 +1,6 @@
 /* segImage i18n — default follows browser language (zh* → Chinese, else English). ?lang=en|zh overrides; choice remembered in localStorage. */
 (function () {
-  const VERSION = "1.2.1";
+  const VERSION = "1.3.0";
   const D = {
     en: {
       title: "Free Online Background Remover – Remove Image Background | segImage", metaDesc: "Remove image backgrounds free online: cut out objects, products, food, people, pets and ID photos into transparent PNGs or stickers. Open source (rembg, MediaPipe, GrabCut, AI auto-box); uploads are never stored.",

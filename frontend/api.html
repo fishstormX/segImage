@@ -11,7 +11,7 @@
 <div class="wrap doc">
   <header>
     <div class="topbar">
-      <h1><a href="./" style="color:inherit;text-decoration:none">segImage</a> <span data-i18n="apiDocs">API &amp; SDK</span> <span class="badge ver">v1.2</span></h1>
+      <h1><a href="./" style="color:inherit;text-decoration:none">segImage</a> <span data-i18n="apiDocs">API &amp; SDK</span> <span class="badge ver">v1.3</span></h1>
       <nav class="links">
         <a href="./" data-i18n="backDemo">← Demo</a>
         <a id="swagger" href="api/docs" target="_blank">Swagger / OpenAPI</a>
@@ -52,7 +52,7 @@
   </table>
 
   <h2 data-i18n="d_resp">Response &amp; errors</h2>
-<pre><code>{ "ok": true, "version": "1.2.1", "method": "rembg", "engine": "rembg_u2netp+smart_complete",
+<pre><code>{ "ok": true, "version": "1.3.0", "method": "rembg", "engine": "rembg_u2netp+smart_complete",
   "rembg_model": "u2netp", "width": 960, "height": 1280, "elapsed_ms": 1800,
   "image_png_b64": "iVBOR…", "mask_png_b64": "iVBOR…", "detection": null }
 
@@ -67,6 +67,18 @@
   </table>
   <p data-lang-only="en"><b>Limits:</b> 12 MB per upload; images are downscaled to ≤1280 px for rembg; the public demo runs on a small 4-vCPU box with no GPU — please keep it to a few requests per minute, and self-host for batch jobs. The <code>ai</code>/<code>multi</code> methods only use free OpenRouter models and may be slow (up to ~2 min) or rate-limited, falling back to rembg.</p>
   <p data-lang-only="zh"><b>限制：</b>单次上传 ≤ 12 MB；rembg 会把图片缩到长边 ≤1280px；公共演示跑在一台 4 核、无 GPU 的小服务器上，请控制在每分钟几次，批量任务请自行部署。<code>ai</code>/<code>multi</code> 仅使用 OpenRouter 免费模型，可能较慢（最长约 2 分钟）或被限流，失败时回退 rembg。</p>
+
+  
+  <h2 data-i18n="d_cli">CLI (local cutout)</h2>
+  <p data-lang-only="en">Same pipeline as this API, no server needed. After <code>pip install -e backend/</code>:</p>
+  <p data-lang-only="zh">与本 API 同一套抠图流水线，无需启动服务。<code>pip install -e backend/</code> 之后：</p>
+<pre><code>segimage photo.jpg -o sticker.png
+segimage photo.jpg -o out.png --method rembg --model u2netp
+segimage photo.jpg -o out.png --method grabcut --rect 0.1,0.1,0.8,0.8
+segimage ./photos/ -o ./stickers/
+python -m segimage --help</code></pre>
+  <p data-lang-only="en">Methods: <code>rembg</code> · <code>grabcut</code> · <code>ai</code> · <code>multi</code> (MediaPipe is browser-only). Full Quickstart: <a href="https://github.com/fishstormX/segImage#quickstart">README</a>.</p>
+  <p data-lang-only="zh">方法：<code>rembg</code> · <code>grabcut</code> · <code>ai</code> · <code>multi</code>（MediaPipe 仅浏览器）。完整快速开始见 <a href="https://github.com/fishstormX/segImage/blob/main/README.zh-CN.md#快速开始">README</a>。</p>
 
   <h2>curl</h2>
 <pre><code>BASE=<span class="base"></span>
@@ -98,13 +110,13 @@ const client = new SegImage("<span class="base"></span>");
 const res = await client.segment(fileInput.files[0], { method: "rembg" });
 document.querySelector("img").src = URL.createObjectURL(res.image);</code></pre>
 
-  <footer class="foot">segImage <span class="ver">v1.2</span> · MIT · <a href="https://github.com/fishstormX/segImage">github.com/fishstormX/segImage</a></footer>
+  <footer class="foot">segImage <span class="ver">v1.3</span> · MIT · <a href="https://github.com/fishstormX/segImage">github.com/fishstormX/segImage</a></footer>
 </div>
 <script>
   (function () {
     const D = window.I18N.dict;
-    Object.assign(D.en, { apiTitle: "segImage API & SDK", backDemo: "← Demo", d_endpoints: "Endpoints", d_desc: "Description", d_health: "Version, loaded models, limits", d_models: "rembg models + currently available free vision models", d_segment: "One subject → transparent PNG (method = rembg | grabcut | ai)", d_multi: "Up to 6 subjects → one PNG each", d_legacy: "Legacy aliases (v1.0/1.1 response shape), kept for compatibility", d_params: "Form fields (multipart/form-data)", d_complete: "Smart subject completion (pure vision)", d_desp: "Remove small islands, fill holes", d_wb: "White sticker outline", d_resp: "Response & errors" });
-    Object.assign(D.zh, { apiTitle: "segImage API 与 SDK", backDemo: "← 演示", d_endpoints: "接口", d_desc: "说明", d_health: "版本、已加载模型、限制", d_models: "rembg 模型 + 当前可用的免费视觉模型", d_segment: "单主体 → 透明 PNG（method = rembg | grabcut | ai）", d_multi: "最多 6 个主体 → 每个一张 PNG", d_legacy: "旧接口别名（保持 v1.0/1.1 返回格式）", d_params: "表单字段（multipart/form-data）", d_complete: "智能补全主体（纯视觉）", d_desp: "去小碎块、填洞", d_wb: "白边贴纸", d_resp: "返回与错误码" });
+    Object.assign(D.en, { d_cli: "CLI (local cutout)", apiTitle: "segImage API & SDK", backDemo: "← Demo", d_endpoints: "Endpoints", d_desc: "Description", d_health: "Version, loaded models, limits", d_models: "rembg models + currently available free vision models", d_segment: "One subject → transparent PNG (method = rembg | grabcut | ai)", d_multi: "Up to 6 subjects → one PNG each", d_legacy: "Legacy aliases (v1.0/1.1 response shape), kept for compatibility", d_params: "Form fields (multipart/form-data)", d_complete: "Smart subject completion (pure vision)", d_desp: "Remove small islands, fill holes", d_wb: "White sticker outline", d_resp: "Response & errors" });
+    Object.assign(D.zh, { d_cli: "命令行 CLI（本地抠图）", apiTitle: "segImage API 与 SDK", backDemo: "← 演示", d_endpoints: "接口", d_desc: "说明", d_health: "版本、已加载模型、限制", d_models: "rembg 模型 + 当前可用的免费视觉模型", d_segment: "单主体 → 透明 PNG（method = rembg | grabcut | ai）", d_multi: "最多 6 个主体 → 每个一张 PNG", d_legacy: "旧接口别名（保持 v1.0/1.1 返回格式）", d_params: "表单字段（multipart/form-data）", d_complete: "智能补全主体（纯视觉）", d_desp: "去小碎块、填洞", d_wb: "白边贴纸", d_resp: "返回与错误码" });
     const base = location.origin + location.pathname.replace(/\/(api\.html|index\.html)?$/, "");
     document.querySelectorAll(".base").forEach((e) => (e.textContent = base));
   })();

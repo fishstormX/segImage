@@ -6,7 +6,7 @@
 
 **Open-source background removal & sticker cutout — rembg, MediaPipe, OpenCV GrabCut and free AI auto-box, with a REST API, SDKs and a privacy-first web demo that never stores your uploads.**
 
-[![version](https://img.shields.io/badge/version-1.2.0-3d8bfd)](CHANGELOG.md)
+[![version](https://img.shields.io/badge/version-1.3.0-3d8bfd)](CHANGELOG.md)
 [![license](https://img.shields.io/badge/license-MIT-green)](LICENSE)
 [![python](https://img.shields.io/badge/python-3.10%2B-blue?logo=python&logoColor=white)](backend/requirements.txt)
 [![fastapi](https://img.shields.io/badge/FastAPI-0.118-009688?logo=fastapi&logoColor=white)](https://fastapi.tiangolo.com/)
@@ -23,6 +23,7 @@
 - **Sticker output** — transparent PNG, auto-cropped, optional white outline.
 - **Mask post-processing** — despeckle, hole filling, contour smoothing, guided-filter feathering (`smooth` 0–10).
 - **Smart subject completion (pure vision)** — grows a partial model mask to the whole subject using a border colour model, flood fill, trimap + GrabCut and SLIC voting, with a guard against swallowing background.
+- **CLI** (`segimage`) — same cutout pipeline as the server, for scripts and batch folders.
 - **Versioned REST API** (`/api/v1/*`) with OpenAPI / Swagger docs, consistent JSON errors, and thin **Python** and **JS/TS** SDKs.
 - **Free models only** — the AI modes use only OpenRouter models whose id ends in `:free`; without a key (or when all fail) they fall back to local rembg.
 - **Privacy** — uploads are processed in memory and discarded; no database, nothing written to disk.
@@ -32,7 +33,7 @@
 
 👉 **https://jev.fishmaple.cn/segImage/** · API docs: [in-site guide](https://jev.fishmaple.cn/segImage/api.html) · [Swagger UI](https://jev.fishmaple.cn/segImage/api/docs)
 
-The demo runs on a small 4-vCPU box without a GPU — please be gentle, and self-host for batch work.
+The demo runs on a small 4-vCPU box without a GPU — please be gentle, and self-host (or use the CLI) for batch work. **The public API is for testing only**; for commercial use or partnership inquiries contact [stormnetwork@163.com](mailto:stormnetwork@163.com) (海口龙华区妙妙鱼传媒工作室 / Miaomiaoyu Media Studio, Longhua District, Haikou).
 
 | Desktop | AI auto-box | Multi-subject |
 |---|---|---|
@@ -40,17 +41,52 @@ The demo runs on a small 4-vCPU box without a GPU — please be gentle, and self
 
 ## Quickstart
 
-Requires Python 3.10+ (tested with 3.13). The first request downloads the `u2netp` model (~4.7 MB) to `~/.u2net`.
+Requires Python 3.10+ (tested with 3.13). The first rembg run downloads the `u2netp` model (~4.7 MB) to `~/.u2net`.
+
+### 1. Install
 
 ```bash
 git clone https://github.com/fishstormX/segImage.git
 cd segImage/backend
 python3 -m venv .venv && . .venv/bin/activate
-pip install -r requirements.txt
+pip install -e .                # installs the `segimage` CLI + API deps
+# or: pip install -r requirements.txt
+```
+
+### 2. One-command first cutout (CLI)
+
+The CLI uses the **same** `app.pipeline` engine as the FastAPI service (rembg / GrabCut / AI auto-box / multi). MediaPipe is browser-only and is not available from the CLI.
+
+```bash
+segimage photo.jpg -o sticker.png
+# equivalents:
+#   python -m segimage photo.jpg -o sticker.png
+#   python -m app photo.jpg -o sticker.png
+```
+
+Useful flags:
+
+```bash
+segimage photo.jpg -o out.png --method rembg --model u2netp
+segimage photo.jpg -o out.png --method rembg --model u2net --no-complete --no-border
+segimage photo.jpg -o out.png --method grabcut --rect 0.1,0.1,0.8,0.8
+segimage photo.jpg -o out.png --method grabcut --points '[[0.5,0.5,1]]'
+segimage desk.jpg  -o subjects/ --method multi          # needs OPENROUTER_API_KEY for best results
+segimage ./photos/ -o ./stickers/                       # batch a directory
+cat photo.jpg | segimage - -o - > sticker.png           # stdin → stdout
+segimage photo.jpg -o out.png --mask mask.png           # also write the alpha mask
+segimage --help
+```
+
+`--method`: `rembg` (default) · `grabcut` · `ai` · `multi`. `--model`: `u2netp` (default) · `isnet-general-use` · `u2net` · `silueta`.
+
+### 3. Local API / web UI
+
+```bash
 uvicorn app.main:app --port 8765          # serves API + web UI
 ```
 
-Open http://127.0.0.1:8765/ for the UI and http://127.0.0.1:8765/api/docs for Swagger. Check it from another shell:
+Open http://127.0.0.1:8765/ for the UI and http://127.0.0.1:8765/api/docs for Swagger:
 
 ```bash
 curl -s http://127.0.0.1:8765/api/v1/health
@@ -58,7 +94,11 @@ curl -s -F file=@photo.jpg http://127.0.0.1:8765/api/v1/segment \
   | python3 -c "import sys,json,base64;d=json.load(sys.stdin);open('sticker.png','wb').write(base64.b64decode(d['image_png_b64']));print(d['engine'],d['elapsed_ms'],'ms')"
 ```
 
-Optional: `export OPENROUTER_API_KEY=...` before starting uvicorn to enable the AI modes (free models only).
+Optional: `export OPENROUTER_API_KEY=...` before starting uvicorn (or before `segimage --method ai|multi`) to enable the AI modes (free OpenRouter models only).
+
+### 4. SDKs (talk to a running server)
+
+Thin HTTP clients — not required for local CLI cutouts: [Python](sdk/python/segimage.py) · [JS/TS](sdk/js) · [curl recipes](sdk/curl.md). See [API & SDK](#api--sdk) below.
 
 ## API & SDK
 
@@ -77,7 +117,7 @@ Form fields (`multipart/form-data`): `file` (≤ 12 MB), `method`, `rembg_model`
 
 ```jsonc
 // 200
-{ "ok": true, "version": "1.2.0", "method": "rembg", "engine": "rembg_u2netp+smart_complete",
+{ "ok": true, "version": "1.3.0", "method": "rembg", "engine": "rembg_u2netp+smart_complete",
   "rembg_model": "u2netp", "width": 960, "height": 1280, "elapsed_ms": 1800,
   "image_png_b64": "iVBOR…", "mask_png_b64": "iVBOR…", "detection": null }
 // error
@@ -190,6 +230,7 @@ A Dockerfile is not shipped yet (see Roadmap).
 - [ ] Dockerfile + compose
 - [ ] Document mode: robust quadrilateral detection + perspective flattening (prototype was not reliable enough for 1.2)
 - [ ] Optional GPU backends (SAM 2 / BiRefNet) when memory allows
+- [x] Local CLI (`segimage`) sharing the server pipeline
 - [ ] Batch endpoint and rate limiting headers
 - [ ] Publish SDKs to PyPI / npm
 

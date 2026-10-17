@@ -23,7 +23,7 @@ from fastapi.openapi.docs import get_swagger_ui_html
 from fastapi.responses import JSONResponse
 from pydantic import BaseModel, Field
 
-from app.opencv_grabcut import grabcut_segment
+from app.pipeline import METHODS, MAX_BYTES, MAX_SIDE, SegError, run_segment
 from app.ratelimit import client_ip, limiter
 from app.version import __version__
 
@@ -31,10 +31,6 @@ logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger("segImage")
 
 BASE_PATH = os.environ.get("SEGIMAGE_BASE_PATH", "").rstrip("/")  # e.g. "/segImage" behind nginx
-MAX_BYTES = int(os.environ.get("SEGIMAGE_MAX_BYTES", 12 * 1024 * 1024))
-MAX_SIDE = 1280
-METHODS = ["rembg", "grabcut", "ai", "multi"]
-
 app = FastAPI(
     title="segImage API",
     version=__version__,
@@ -73,9 +69,7 @@ _rembg_ready = False
 _rembg_error: Optional[str] = None
 
 
-class APIError(Exception):
-    def __init__(self, status: int, code: str, message: str):
-        self.status, self.code, self.message = status, code, message
+APIError = SegError  # alias kept for handlers / raise sites
 
 
 @app.exception_handler(APIError)
@@ -115,57 +109,13 @@ def _truthy(v: Any) -> bool:
 
 async def _run(raw: bytes, method: str, *, white_border=True, smooth=3, despeckle=True, complete=True,
                rembg_model: Optional[str] = None, points=None, rect=None) -> dict:
-    """Shared engine. Returns the legacy result dict."""
-    if not raw:
-        raise APIError(400, "EMPTY_FILE", "Empty file")
-    if len(raw) > MAX_BYTES:
-        raise APIError(413, "FILE_TOO_LARGE", f"File larger than {MAX_BYTES // (1024 * 1024)} MB")
-    from PIL import Image, UnidentifiedImageError
-    from io import BytesIO
-    try:
-        W, H = Image.open(BytesIO(raw)).size
-    except (UnidentifiedImageError, OSError):
-        raise APIError(415, "UNSUPPORTED_IMAGE", "Not a decodable image (JPEG/PNG/WebP/…)")
-    smooth = max(0, min(10, int(smooth)))
-    m = (method or "rembg").lower().strip()
-    rm = rembg_model or None
-    from app.rembg_seg import MODELS
-    if rm and rm not in MODELS:
-        raise APIError(400, "UNKNOWN_MODEL", f"rembg_model must be one of {list(MODELS)}")
-    try:
-        if m in ("rembg", "sam", "sam-like", "u2net"):
-            from app.rembg_seg import rembg_segment
-            return await asyncio.to_thread(lambda: rembg_segment(raw, white_border=white_border, smooth=smooth, despeckle=despeckle, complete=complete, model=rm))
-        if m == "multi":
-            from app.multi import segment_multi
-            return await asyncio.to_thread(segment_multi, raw, white_border, smooth, despeckle, complete, rm)
-        if m in ("ai", "ai_box"):
-            from app.ai_box import detect
-            det, tried = await asyncio.to_thread(detect, raw)
-            if det:
-                x1, y1, x2, y2 = det["box"]
-                pts = [{"x": x, "y": y, "label": 1} for x, y in det["fg_points"]] + \
-                      [{"x": x, "y": y, "label": 0} for x, y in det["bg_points"] if not (x1 < x < x2 and y1 < y < y2)]
-                rect_px = [int(x1 * W), int(y1 * H), max(2, int((x2 - x1) * W)), max(2, int((y2 - y1) * H))]
-                r = await asyncio.to_thread(grabcut_segment, raw, pts, rect_px, 5, white_border, True, smooth, despeckle)
-                r.update(method="ai_box+grabcut", label=det["label"], model=det["model"], box=det["box"],
-                         box_px=[int(x1 * W), int(y1 * H), int(x2 * W), int(y2 * H)],
-                         fg_points=det["fg_points"], bg_points=det["bg_points"], tried=tried, fallback=False)
-                return r
-            from app.rembg_seg import rembg_segment
-            r = await asyncio.to_thread(lambda: rembg_segment(raw, white_border=white_border, smooth=smooth, despeckle=despeckle, complete=complete, model=rm))
-            r.update(method="ai_box→fallback rembg", fallback=True, tried=tried, label=None, model=None, box=None)
-            return r
-        if m in ("opencv", "grabcut"):
-            if not points and not rect:
-                rect = [0.05, 0.05, 0.9, 0.9]
-            return await asyncio.to_thread(lambda: grabcut_segment(raw, points=points, rect=rect, white_border=white_border, smooth=smooth, despeckle=despeckle))
-    except APIError:
-        raise
-    except Exception as e:
-        logger.exception("segment failed")
-        raise APIError(500, "SEGMENTATION_FAILED", f"Segmentation failed: {e}")
-    raise APIError(400, "UNKNOWN_METHOD", f"method must be one of {METHODS}")
+    """Async wrapper around the shared sync pipeline (used by API handlers)."""
+    return await asyncio.to_thread(
+        run_segment, raw, method,
+        white_border=white_border, smooth=smooth, despeckle=despeckle, complete=complete,
+        rembg_model=rembg_model, points=points, rect=rect,
+    )
+
 
 
 def _parse_json(s: Optional[str], name: str):

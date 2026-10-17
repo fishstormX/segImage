@@ -6,7 +6,7 @@
 
 **开源抠图 / 去背景 / 贴纸生成工具：rembg、MediaPipe、OpenCV GrabCut 与免费 AI 自动框选，提供 REST API、SDK，以及一个从不保存上传内容的在线演示。**
 
-[![version](https://img.shields.io/badge/version-1.2.0-3d8bfd)](CHANGELOG.md)
+[![version](https://img.shields.io/badge/version-1.3.0-3d8bfd)](CHANGELOG.md)
 [![license](https://img.shields.io/badge/license-MIT-green)](LICENSE)
 [![python](https://img.shields.io/badge/python-3.10%2B-blue?logo=python&logoColor=white)](backend/requirements.txt)
 [![fastapi](https://img.shields.io/badge/FastAPI-0.118-009688?logo=fastapi&logoColor=white)](https://fastapi.tiangolo.com/)
@@ -23,6 +23,7 @@
 - **贴纸输出**：透明 PNG，自动裁剪，可选白色描边。
 - **掩码后处理**：去碎块、填洞、轮廓平滑、导向滤波羽化（`smooth` 0–10）。
 - **智能补全主体（纯视觉）**：以模型掩码为种子，用边缘背景颜色模型 + 洪泛 + trimap/GrabCut + SLIC 投票把只抠出一部分的主体补全，并有防“吞背景”保护。
+- **命令行 CLI**（`segimage`）：与服务端同一套抠图流水线，适合脚本和批量目录。
 - **带版本的 REST API**（`/api/v1/*`）：OpenAPI / Swagger 文档、统一 JSON 错误格式，附轻量 **Python** 与 **JS/TS** SDK。
 - **只用免费模型**：AI 模式只调用 id 以 `:free` 结尾的 OpenRouter 模型；未配置 Key 或全部失败时回退本地 rembg。
 - **隐私**：上传只在内存中处理并立即丢弃；无数据库、不落盘。
@@ -32,7 +33,7 @@
 
 👉 **https://jev.fishmaple.cn/segImage/?lang=zh** · API 文档：[站内说明](https://jev.fishmaple.cn/segImage/api.html?lang=zh) · [Swagger UI](https://jev.fishmaple.cn/segImage/api/docs)
 
-演示服务器为 4 核、无 GPU 的小机器，请适度使用；批量任务请自行部署。
+演示服务器为 4 核、无 GPU 的小机器，请适度使用；批量任务请自行部署或使用本地 CLI。**公共 API 仅供测试使用**；如有商业使用或合作意向，请联系 [stormnetwork@163.com](mailto:stormnetwork@163.com)（海口龙华区妙妙鱼传媒工作室）。
 
 | 桌面端 | AI 自动框选 | 多主体 |
 |---|---|---|
@@ -47,17 +48,52 @@
 
 ## 快速开始
 
-需要 Python 3.10+（已在 3.13 上验证）。首次请求会把 `u2netp` 模型（约 4.7 MB）下载到 `~/.u2net`。
+需要 Python 3.10+（已在 3.13 上验证）。首次跑 rembg 会把 `u2netp` 模型（约 4.7 MB）下载到 `~/.u2net`。
+
+### 1. 安装
 
 ```bash
 git clone https://github.com/fishstormX/segImage.git
 cd segImage/backend
 python3 -m venv .venv && . .venv/bin/activate
-pip install -r requirements.txt
+pip install -e .                # 安装 `segimage` 命令行 + API 依赖
+# 或: pip install -r requirements.txt
+```
+
+### 2. 一条命令抠图（CLI）
+
+CLI 与 FastAPI 服务共用同一套 `app.pipeline` 引擎（rembg / GrabCut / AI 自动框选 / 多主体）。MediaPipe 仅在浏览器端可用，CLI 不提供。
+
+```bash
+segimage photo.jpg -o sticker.png
+# 等价写法：
+#   python -m segimage photo.jpg -o sticker.png
+#   python -m app photo.jpg -o sticker.png
+```
+
+常用参数：
+
+```bash
+segimage photo.jpg -o out.png --method rembg --model u2netp
+segimage photo.jpg -o out.png --method rembg --model u2net --no-complete --no-border
+segimage photo.jpg -o out.png --method grabcut --rect 0.1,0.1,0.8,0.8
+segimage photo.jpg -o out.png --method grabcut --points '[[0.5,0.5,1]]'
+segimage desk.jpg  -o subjects/ --method multi          # 建议设置 OPENROUTER_API_KEY
+segimage ./photos/ -o ./stickers/                       # 批量处理目录
+cat photo.jpg | segimage - -o - > sticker.png           # 标准输入 → 标准输出
+segimage photo.jpg -o out.png --mask mask.png           # 同时写出 alpha 掩码
+segimage --help
+```
+
+`--method`：`rembg`（默认）· `grabcut` · `ai` · `multi`。`--model`：`u2netp`（默认）· `isnet-general-use` · `u2net` · `silueta`。
+
+### 3. 本地 API / 网页
+
+```bash
 uvicorn app.main:app --port 8765          # 同时提供 API 与网页
 ```
 
-浏览器打开 http://127.0.0.1:8765/ （界面）和 http://127.0.0.1:8765/api/docs （Swagger）。另开终端验证：
+浏览器打开 http://127.0.0.1:8765/ （界面）和 http://127.0.0.1:8765/api/docs （Swagger）：
 
 ```bash
 curl -s http://127.0.0.1:8765/api/v1/health
@@ -65,7 +101,11 @@ curl -s -F file=@photo.jpg http://127.0.0.1:8765/api/v1/segment \
   | python3 -c "import sys,json,base64;d=json.load(sys.stdin);open('sticker.png','wb').write(base64.b64decode(d['image_png_b64']));print(d['engine'],d['elapsed_ms'],'ms')"
 ```
 
-可选：启动前 `export OPENROUTER_API_KEY=...` 以启用 AI 模式（只用免费模型）。
+可选：启动 uvicorn（或跑 `segimage --method ai|multi`）前 `export OPENROUTER_API_KEY=...` 以启用 AI 模式（只用 OpenRouter 免费模型）。
+
+### 4. SDK（调用已运行的服务）
+
+轻量 HTTP 客户端 —— 本地 CLI 抠图不需要它们：[Python](sdk/python/segimage.py) · [JS/TS](sdk/js) · [curl 示例](sdk/curl.md)。详见下方 [API 与 SDK](#api-与-sdk)。
 
 ## API 与 SDK
 
@@ -84,7 +124,7 @@ curl -s -F file=@photo.jpg http://127.0.0.1:8765/api/v1/segment \
 
 ```jsonc
 // 成功
-{ "ok": true, "version": "1.2.0", "method": "rembg", "engine": "rembg_u2netp+smart_complete",
+{ "ok": true, "version": "1.3.0", "method": "rembg", "engine": "rembg_u2netp+smart_complete",
   "rembg_model": "u2netp", "width": 960, "height": 1280, "elapsed_ms": 1800,
   "image_png_b64": "iVBOR…", "mask_png_b64": "iVBOR…", "detection": null }
 // 失败
@@ -202,9 +242,11 @@ curl -s https://<你的域名>/segImage/api/v1/health
 
 ## 路线图
 
+- [x] 本地 CLI（`segimage`，与服务端共用流水线）
 - [ ] Dockerfile + compose
 - [ ] 文档模式：稳健的四边形检测 + 透视拉正（1.2 的原型不够可靠，未发布）
 - [ ] 内存允许时的可选 GPU 后端（SAM 2 / BiRefNet）
+- [x] 本地 CLI（`segimage`，与服务端共用流水线）
 - [ ] 批量接口与限流响应头
 - [ ] SDK 发布到 PyPI / npm
 
