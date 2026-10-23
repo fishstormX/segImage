@@ -1,6 +1,6 @@
 # curl examples
 
-> ⚠️ This API is for testing only. For commercial use or partnership inquiries, contact stormnetwork@163.com (海口龙华区妙妙鱼传媒工作室 / Miaomiaoyu Media Studio, Longhua District, Haikou). 此接口仅供测试使用，如有商业使用或合作意向，请联系 stormnetwork@163.com（海口龙华区妙妙鱼传媒工作室）。 Per-IP limits: 1 call / 10 s and 5 calls / 60 s; HTTP 429 `rate limited` + `Retry-After` when exceeded.
+> ⚠️ This API is for testing only. For commercial use or partnership inquiries, contact stormnetwork@163.com (妙妙鱼 / fishstormX). 此接口仅供测试使用，如有商业使用或合作意向，请联系 stormnetwork@163.com（妙妙鱼）。 Per-IP limits: 1 call / 10 s and 5 calls / 60 s; HTTP 429 `rate limited` + `Retry-After` when exceeded.
 
 
 ```bash

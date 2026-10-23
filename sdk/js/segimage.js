@@ -1,6 +1,6 @@
 /**
  * segimage — thin fetch-based client for the segImage REST API (v1). Works in browsers and Node ≥ 18.
- * NOTE: This API is for testing only. For commercial use or partnership inquiries, contact stormnetwork@163.com (海口龙华区妙妙鱼传媒工作室 / Miaomiaoyu Media Studio, Longhua District, Haikou). Public instance limits per IP: 1 call / 10 s and 5 calls / 60 s (HTTP 429 when exceeded).
+ * NOTE: This API is for testing only. For commercial use or partnership inquiries, contact stormnetwork@163.com (妙妙鱼 / fishstormX). Public instance limits per IP: 1 call / 10 s and 5 calls / 60 s (HTTP 429 when exceeded).
  *   On 429 a SegImageError with status 429 and `retryAfter` is thrown (no automatic retry).
  * MIT licensed.
  *   import { SegImage } from "./segimage.js";

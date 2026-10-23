@@ -96,7 +96,7 @@ Privacy: local CLI keeps files on disk you choose; the public demo processes in 
 
 👉 **https://jev.fishmaple.cn/segImage/** · API docs: [in-site guide](https://jev.fishmaple.cn/segImage/api.html) · [Swagger UI](https://jev.fishmaple.cn/segImage/api/docs)
 
-The demo runs on a small 4-vCPU box without a GPU — please be gentle, and self-host (or use the CLI) for batch work. **The public API is for testing only**; for commercial use or partnership inquiries contact [stormnetwork@163.com](mailto:stormnetwork@163.com) (海口龙华区妙妙鱼传媒工作室 / Miaomiaoyu Media Studio, Longhua District, Haikou).
+The demo runs on a small 4-vCPU box without a GPU — please be gentle, and self-host (or use the CLI) for batch work. **The public API is for testing only**; for commercial use or partnership inquiries contact [stormnetwork@163.com](mailto:stormnetwork@163.com) (妙妙鱼 / fishstormX).
 
 | Desktop | AI auto-box | Multi-subject |
 |---|---|---|
@@ -165,7 +165,7 @@ Thin HTTP clients — not required for local CLI cutouts: [Python](sdk/python/se
 
 ## API & SDK
 
-> ⚠️ **This API is for testing only. For commercial use or partnership inquiries, contact stormnetwork@163.com (海口龙华区妙妙鱼传媒工作室 / Miaomiaoyu Media Studio, Longhua District, Haikou). Public instance limits per IP: 1 call / 10 s and 5 calls / 60 s (HTTP 429 when exceeded).** Self-host for production use; limits are configurable via `SEG_RATE_LIMITS`.
+> ⚠️ **This API is for testing only. For commercial use or partnership inquiries, contact stormnetwork@163.com (妙妙鱼 / fishstormX). Public instance limits per IP: 1 call / 10 s and 5 calls / 60 s (HTTP 429 when exceeded).** Self-host for production use; limits are configurable via `SEG_RATE_LIMITS`.
 
 | Route | Description |
 |---|---|
@@ -303,7 +303,7 @@ Issues and PRs are welcome — see [CONTRIBUTING.md](CONTRIBUTING.md). Please ne
 
 ## License
 
-[MIT](LICENSE) © 2026 fishstormX
+[MIT](LICENSE) © 2026 妙妙鱼 / fishstormX
 
 ## Acknowledgements
 
