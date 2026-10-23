@@ -5,7 +5,7 @@
     res = client.segment("photo.jpg", method="rembg")
     res.save("sticker.png")
 
-NOTE: This API is for testing only. For commercial use or partnership inquiries, contact stormnetwork@163.com (海口龙华区妙妙鱼传媒工作室 / Miaomiaoyu Media Studio, Longhua District, Haikou). Public instance limits per IP: 1 call / 10 s and 5 calls / 60 s (HTTP 429 when exceeded).
+NOTE: This API is for testing only. For commercial use or partnership inquiries, contact stormnetwork@163.com (妙妙鱼 / fishstormX). Public instance limits per IP: 1 call / 10 s and 5 calls / 60 s (HTTP 429 when exceeded).
 On 429 a SegImageError(status=429, code="RATE_LIMITED") with ``retry_after`` is raised (never auto-retried).
 
 Python ≥ 3.8, standard library only. MIT licensed.

@@ -147,7 +147,7 @@ def build_parser() -> argparse.ArgumentParser:
             "\n"
             f"models: {', '.join(MODELS)} (default {DEFAULT_MODEL})\n"
             "The public demo API is for testing only; for commercial use contact "
-            "stormnetwork@163.com (海口龙华区妙妙鱼传媒工作室)."
+            "stormnetwork@163.com (妙妙鱼)."
         ),
     )
     p.add_argument("input", help="image file, directory of images, or '-' for stdin")

@@ -96,7 +96,7 @@ Python/JS SDK：sdk/python/segimage.py · sdk/js
 
 👉 **https://jev.fishmaple.cn/segImage/?lang=zh** · API 文档：[站内说明](https://jev.fishmaple.cn/segImage/api.html?lang=zh) · [Swagger UI](https://jev.fishmaple.cn/segImage/api/docs)
 
-演示服务器为 4 核、无 GPU 的小机器，请适度使用；批量任务请自行部署或使用本地 CLI。**公共 API 仅供测试使用**；如有商业使用或合作意向，请联系 [stormnetwork@163.com](mailto:stormnetwork@163.com)（海口龙华区妙妙鱼传媒工作室）。
+演示服务器为 4 核、无 GPU 的小机器，请适度使用；批量任务请自行部署或使用本地 CLI。**公共 API 仅供测试使用**；如有商业使用或合作意向，请联系 [stormnetwork@163.com](mailto:stormnetwork@163.com)（妙妙鱼）。
 
 | 桌面端 | AI 自动框选 | 多主体 |
 |---|---|---|
@@ -172,7 +172,7 @@ curl -s -F file=@photo.jpg http://127.0.0.1:8765/api/v1/segment \
 
 ## API 与 SDK
 
-> ⚠️ **此接口仅供测试使用，如有商业使用或合作意向，请联系 stormnetwork@163.com（海口龙华区妙妙鱼传媒工作室）。公共实例按 IP 限流：每 10 秒 1 次、每分钟 5 次，超出返回 HTTP 429。** 生产使用请自行部署；限流可通过 `SEG_RATE_LIMITS` 配置。
+> ⚠️ **此接口仅供测试使用，如有商业使用或合作意向，请联系 stormnetwork@163.com（妙妙鱼）。公共实例按 IP 限流：每 10 秒 1 次、每分钟 5 次，超出返回 HTTP 429。** 生产使用请自行部署；限流可通过 `SEG_RATE_LIMITS` 配置。
 
 | 路由 | 说明 |
 |---|---|
@@ -319,7 +319,7 @@ curl -s https://<你的域名>/segImage/api/v1/health
 
 ## 许可证
 
-[MIT](LICENSE) © 2026 fishstormX
+[MIT](LICENSE) © 2026 妙妙鱼 / fishstormX
 
 ## 致谢
 
